@@ -205,7 +205,7 @@ test("moving through the list keeps its buttons and thumbnails, and loaded pictu
   await press("j");
   await press("k");
   assert.equal(await page.eval("window.__keep[0] === document.querySelector('#rescan-list li button') && window.__keep[1] === document.querySelector('#rescan-list img')"), true);
-  await page.waitFor("document.querySelector('#stage img')?.complete");
-  assert.equal(await page.eval("document.querySelector('#stage img').classList.contains('pending')"), false);
+  // complete turns true just before the load handler removes the placeholder class, so wait for both.
+  await page.waitFor("document.querySelector('#stage img')?.complete && !document.querySelector('#stage img').classList.contains('pending')");
   await page.waitFor("getComputedStyle(document.querySelector('#stage img')).opacity === '1'");
 });
