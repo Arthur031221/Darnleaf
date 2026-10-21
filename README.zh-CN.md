@@ -66,7 +66,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf --version
 ```
 
-需要 Python 3.10 或更高版本。目前只在 Linux 上测试过，也还没有发布到 PyPI。
+需要 Python 3.10 或更高版本。还没有发布到 PyPI。完整测试在 Linux 上运行，CLI、导出和图像处理的测试在 CI 里也会在 macOS 和 Windows 上运行，但匹配引擎只在 Linux 上验证过。
 
 ## 限制
 

@@ -66,7 +66,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf --version
 ```
 
-Python 3.10 ou mais recente. Testado só no Linux até agora e ainda não está no PyPI.
+Python 3.10 ou mais recente. Ainda não está no PyPI. A suíte completa roda no Linux. Os testes de CLI, exportação e imagens também rodam no CI em macOS e Windows, mas o mecanismo de correspondência só foi exercitado no Linux.
 
 ## Limites
 

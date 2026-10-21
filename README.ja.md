@@ -66,7 +66,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf --version
 ```
 
-Python 3.10 以上が必要です。動作を確認したのは今のところ Linux だけで、PyPI にはまだありません。
+Python 3.10 以上が必要です。PyPI にはまだありません。テスト一式は Linux で動かしています。CLI、書き出し、画像処理のテストは CI で macOS と Windows でも動きますが、照合エンジンを確かめたのは Linux だけです。
 
 ## 制限
 

@@ -15,7 +15,7 @@
 
 [English](README.md) | [Traditional Chinese](README.zh-TW.md) | [Simplified Chinese](README.zh-CN.md) | [Japanese](README.ja.md) | [Korean](README.ko.md) | [Spanish](README.es.md) | [French](README.fr.md) | [German](README.de.md) | [Portuguese (Brazil)](README.pt-BR.md)
 
-You have an old scanned PDF with a few ruined pages, and fresh scans of those pages in no particular order. Darnleaf suggests which page each rescan replaces, shows you the evidence, and writes a repaired PDF plus a JSON receipt of every change.
+You've got an old scanned PDF with a few ruined pages, and fresh scans of those pages in no particular order. Darnleaf suggests which page each rescan replaces, shows you the evidence, and writes a repaired PDF plus a JSON receipt of every change.
 
 - **Not an auto-fixer.** Each match is labeled Clear, Check or None. Export stays locked until you confirm every Check. Blank pages are always Check, and so is any page where the runner-up scores close.
 - **Not a rewrite.** Pages you didn't touch are the original page objects, saved without re-rendering. The original file is never written to.
@@ -88,7 +88,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf --version
 ```
 
-Python 3.10 or newer. The dependencies are PDFium (pypdfium2), pikepdf, OpenCV (headless), NumPy and Pillow. It isn't on PyPI. Only Linux has been tested so far.
+Python 3.10 or newer. The dependencies are PDFium (pypdfium2), pikepdf, OpenCV (headless), NumPy and Pillow. It isn't on PyPI. The full suite runs on Linux. The CLI, export and imaging tests also run on macOS and Windows in CI, but the matcher has only been exercised on Linux.
 </details>
 
 <details>
