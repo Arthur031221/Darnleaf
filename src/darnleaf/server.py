@@ -11,7 +11,7 @@ import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 from . import __version__, limits
 from .imaging import InputError
@@ -31,6 +31,14 @@ def is_loopback(host: str) -> bool:
         return ipaddress.ip_address(host.strip("[]")).is_loopback
     except ValueError:
         return False
+
+
+def _disposition(name: str) -> str:
+    """Header values must be Latin-1, so non-ASCII names go in the RFC 5987 form with an ASCII fallback."""
+    ascii_name = "".join(c if c.isascii() and (c.isalnum() or c in "._- ") else "_" for c in name)
+    if ascii_name == name:
+        return f'attachment; filename="{name}"'
+    return f"attachment; filename=\"{ascii_name}\"; filename*=UTF-8''{quote(name)}"
 
 
 def _int(value: str, low: int, high: int) -> int:
@@ -157,7 +165,7 @@ class App:
                         return self._send(200, s.evidence_image(int(parts[1]), int(parts[2]), parts[3]), "image/png")
                     if parts[0] == "download":
                         name, data, kind = s.download(parts[1])
-                        return self._send(200, data, kind, {"Content-Disposition": f'attachment; filename="{name}"'})
+                        return self._send(200, data, kind, {"Content-Disposition": _disposition(name)})
                     return self._fail(404, "not found")
                 except (InputError, ValueError, IndexError) as exc:
                     self._fail(400, str(exc))

@@ -3,7 +3,12 @@
 // that scripts/build_demo.py wrote after a real run. It never computes a match itself.
 (() => {
   let snapshot = null;
-  const load = fetch("demo/state.json").then((r) => r.json()).then((s) => (snapshot = s));
+  // The replay only ships previews for the pages the matcher listed as candidates.
+  const pages = new Set();
+  const load = fetch("demo/state.json").then((r) => r.json()).then((s) => {
+    for (const p of s.proposals) for (const c of p.candidates.slice(0, 6)) pages.add(c.page);
+    return (snapshot = s);
+  });
   const m = { loaded: false, stage: "idle", step: "pages", done: 0, total: 1, review: false, choice: {}, confirmed: new Set(), exported: false };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -74,7 +79,7 @@
     },
     asset(path) {
       let a;
-      if ((a = /^\/api\/page\/(\d+)/.exec(path))) return `demo/page-${a[1]}.jpg`;
+      if ((a = /^\/api\/page\/(\d+)/.exec(path))) return snapshot && !pages.has(+a[1] + 1) ? "demo/no-preview.svg" : `demo/page-${a[1]}.jpg`;
       if ((a = /^\/api\/rescan\/(\d+)\?.*turns=(\d+)/.exec(path))) return `demo/rescan-${a[1]}-t${+a[2] % 4}.jpg`;
       if ((a = /^\/api\/evidence\/(\d+)\/(\d+)\/(\w+)/.exec(path))) return `demo/ev-${a[1]}-${a[2]}-${a[3]}.jpg`;
       return path;

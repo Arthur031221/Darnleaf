@@ -3,6 +3,7 @@ import json
 import re
 import threading
 import time
+from urllib.parse import quote, unquote
 
 import pytest
 
@@ -168,3 +169,28 @@ def test_ipv6_loopback_works_and_brackets_the_url():
         assert conn.getresponse().status == 200
     finally:
         app.shutdown()
+
+
+def test_download_works_for_non_latin_file_names(client, case):
+    client.json("POST", "/api/clear", {})
+    name = quote("論文 草稿.pdf")
+    assert client.call("POST", "/api/original", case["pdf"].read_bytes(), headers={"X-Filename": name})[0] == 200
+    f = case["rescans"][0]
+    assert client.call("POST", "/api/rescan", f.read_bytes(), headers={"X-Filename": f.name})[0] == 200
+    assert client.json("POST", "/api/match", {})[0] == 200
+    for _ in range(300):
+        state = client.json("GET", "/api/state")[1]
+        if state["stage"] != "matching":
+            break
+        time.sleep(0.3)
+    for p in state["proposals"]:
+        if p["page"]:
+            client.json("POST", "/api/choose", {"rescan": p["rescan"], "page": p["page"], "confirmed": True})
+    assert client.json("POST", "/api/export", {})[0] == 200
+    for which, ext in (("pdf", ".pdf"), ("receipt", ".json")):
+        status, data, headers = client.call("GET", f"/api/download/{which}")
+        assert status == 200 and data
+        disposition = headers["Content-Disposition"]
+        assert disposition.isascii() and "attachment" in disposition
+        assert unquote(re.search(r"filename\*=UTF-8''([^;]+)", disposition).group(1)).startswith("論文 草稿")
+        assert disposition.endswith(ext) or ext in disposition

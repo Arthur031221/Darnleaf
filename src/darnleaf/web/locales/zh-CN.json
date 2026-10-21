@@ -22,6 +22,7 @@
   "match.step.matching": "正在比对 {done}/{total}",
   "review.title": "检查匹配结果",
   "review.hint": "请把每张重扫页面与建议的页面对照检查。只有标记为“明确”的项目可以不经确认直接导出。",
+  "review.keys": "快捷键：j 和 k 切换重扫页，1 到 8 选择候选页，c 确认并跳到下一个需要检查的项目。",
   "review.details": "细节",
   "review.candidates": "其他可能的页面",
   "review.page": "页码",

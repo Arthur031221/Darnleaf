@@ -71,6 +71,8 @@ function render() {
   $("original-info").textContent = info ? t("load.original_info", { name: info.name, pages: info.pages }) : "";
   $("rescans-info").textContent = d.rescans.length ? t("load.rescans_info", { n: d.rescans.length }) : "";
   $("go").disabled = busy || !info || !d.rescans.length;
+  // The replay cannot take files, so until the sample is loaded it is the one thing to press.
+  if (STATIC) $("sample").className = info ? "ghost" : "primary";
   $("clear").hidden = !d.rescans.length;
   $("ocr-wrap").hidden = !d.ocr;
   const notes = $("notes");
@@ -121,6 +123,7 @@ function renderList() {
     const badge = Object.assign(document.createElement("span"), { className: `badge ${s}`, textContent: `${badgeText(s)}${page ? ` · ${t("review.page_short", { page })}` : ""}` });
     b.append(img(asset(`/api/rescan/${i}?size=160&turns=${page ? turnsFor(i, page) : 0}`), ""), name, badge);
     b.onclick = () => { state.selected = i; state.candidate = null; render(); };
+    if (i === state.selected) requestAnimationFrame(() => b.scrollIntoView({ block: "nearest" }));
     const li = document.createElement("li");
     li.append(b);
     ol.append(li);
@@ -144,7 +147,10 @@ function renderDetail() {
   $("d-badge").className = `badge ${s}`;
   $("d-badge").textContent = badgeText(s);
   $("d-reason").textContent = p ? `${t("review.details")}: ${p.reason}` : "";
-  document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === state.view)));
+  document.querySelectorAll(".tabs button").forEach((b) => {
+    b.setAttribute("aria-selected", String(b.dataset.view === state.view));
+    b.tabIndex = b.dataset.view === state.view ? 0 : -1;
+  });
   const stage = $("stage");
   stage.replaceChildren();
   stage.className = "stage";
@@ -209,10 +215,25 @@ function renderExport() {
 }
 
 // ---------- actions ----------
+// The next rescan after `from` that still needs a decision, wrapping around, or -1.
+function nextOpen(from) {
+  const n = state.data.rescans.length;
+  for (let step = 1; step < n; step++) {
+    const i = (from + step) % n;
+    if (statusOf(i) === "check") return i;
+  }
+  return -1;
+}
+
 async function choose(page, confirmed) {
   try {
-    state.data = await api("/api/choose", { rescan: state.selected, page, confirmed });
+    const from = state.selected;
+    state.data = await api("/api/choose", { rescan: from, page, confirmed });
     state.candidate = null;
+    if (confirmed) {
+      const next = nextOpen(from);
+      if (next >= 0) state.selected = next;
+    }
     render();
   } catch (e) { showError($("export-error"), e); }
 }
@@ -231,6 +252,39 @@ function wireDrop(zone, input, handler) {
   zone.ondragover = (e) => { e.preventDefault(); zone.classList.add("over"); };
   zone.ondragleave = () => zone.classList.remove("over");
   zone.ondrop = (e) => { e.preventDefault(); zone.classList.remove("over"); guarded(() => handler([...e.dataTransfer.files]), $("error")); };
+}
+
+// j/k (and the arrow keys inside the list) move through the rescans, 1 to 8 pick a candidate, c confirms.
+function onKey(e) {
+  if (e.ctrlKey || e.metaKey || e.altKey || !state.data || $("review").hidden) return;
+  if (e.target.closest("input, select, textarea")) return;
+  const n = state.data.rescans.length, key = e.key;
+  const tab = e.target.closest(".tabs button");
+  if (tab && (key === "ArrowRight" || key === "ArrowLeft")) {
+    const tabs = [...document.querySelectorAll(".tabs button")];
+    const next = tabs[(tabs.indexOf(tab) + (key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+    e.preventDefault();
+    state.view = next.dataset.view;
+    renderDetail();
+    next.focus();
+    return;
+  }
+  if (tab && key.startsWith("Arrow")) return;
+  const inList = !!e.target.closest(".rlist");
+  if (key === "j" || key === "k" || (inList && (key === "ArrowDown" || key === "ArrowUp"))) {
+    e.preventDefault();
+    const step = key === "j" || key === "ArrowDown" ? 1 : -1;
+    state.selected = (state.selected + step + n) % n;
+    state.candidate = null;
+    render();
+    if (inList) document.querySelector('.rlist [aria-current="true"]')?.focus();
+  } else if (/^[1-8]$/.test(key)) {
+    const c = state.data.proposals[state.selected]?.candidates[+key - 1];
+    if (c) { state.candidate = c.page; renderDetail(); }
+  } else if (key === "c") {
+    const p = shownPage();
+    if (p !== null) choose(p, true);
+  }
 }
 
 function init() {
@@ -264,7 +318,11 @@ function init() {
     $("done-text").textContent = t("export.done", { n: r.replaced.length, untouched: r.untouched_pages });
     if (STATIC && STATIC.onExport) STATIC.onExport(r);
   }, $("export-error"));
-  if (STATIC) { $("demo-banner").hidden = false; }
+  document.addEventListener("keydown", onKey);
+  if (STATIC) {
+    $("demo-banner").hidden = false;
+    document.querySelectorAll(".drop").forEach((z) => z.classList.add("off"));
+  }
   loadLocale(code).then(refresh);
 }
 init();

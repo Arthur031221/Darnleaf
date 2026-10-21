@@ -21,6 +21,7 @@ from darnleaf.imaging import InputError
 from darnleaf.session import Session
 
 OUT = Path(__file__).resolve().parent.parent / "site-data" / "demo"
+PLACEHOLDER = OUT.parent / "no-preview.svg"
 TOP = 6
 
 
@@ -55,6 +56,8 @@ def main() -> None:
                     # Not every pair can draw every view; the UI shows a message for the ones that are missing.
                     with contextlib.suppress(InputError):
                         (OUT / f"ev-{p['rescan']}-{top}-{kind}.jpg").write_bytes(jpeg(s.evidence_image(p["rescan"], top, kind), 66))
+        # Shown in place of a page the replay has no picture of, such as one typed into the page box.
+        shutil.copy(PLACEHOLDER, OUT / "no-preview.svg")
         for page in sorted(pages):
             (OUT / f"page-{page}.jpg").write_bytes(jpeg(s.page_image(page, 700)))
         for r, p in enumerate(state["proposals"]):

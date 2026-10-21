@@ -22,6 +22,7 @@
   "match.step.matching": "Comparando {done}/{total}",
   "review.title": "Revisa las coincidencias",
   "review.hint": "Compara cada reescaneo con la página sugerida. Solo los marcados como Segura se pueden exportar sin confirmar.",
+  "review.keys": "Atajos: j y k cambian de reescaneo, de 1 a 8 eligen una página candidata y c confirma y salta al siguiente que requiere revisión.",
   "review.details": "Detalles",
   "review.candidates": "Otras páginas posibles",
   "review.page": "Página",

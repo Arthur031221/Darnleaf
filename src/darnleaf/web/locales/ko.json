@@ -22,6 +22,7 @@
   "match.step.matching": "비교하는 중 {done}/{total}",
   "review.title": "일치 결과 검토",
   "review.hint": "재스캔마다 제안된 페이지와 비교해 보세요. '확실'로 표시된 것만 확인 없이 내보낼 수 있습니다.",
+  "review.keys": "단축키: j와 k로 재스캔 사이를 이동하고, 1부터 8은 후보 페이지를 고르며, c는 확인 후 다음 확인 대상으로 넘어갑니다.",
   "review.details": "세부 정보",
   "review.candidates": "다른 후보 페이지",
   "review.page": "페이지",

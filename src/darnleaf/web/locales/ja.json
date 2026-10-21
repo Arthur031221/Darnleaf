@@ -22,6 +22,7 @@
   "match.step.matching": "照合中 {done}/{total}",
   "review.title": "一致結果を確認",
   "review.hint": "撮り直しごとに、提案されたページと見比べてください。「確実」と表示されたものだけは、確認なしで書き出せます。",
+  "review.keys": "キー操作：j と k で再スキャンを移動、1 から 8 で候補ページを選択、c で確定して次の要確認へ進みます。",
   "review.details": "詳細",
   "review.candidates": "ほかの候補ページ",
   "review.page": "ページ",

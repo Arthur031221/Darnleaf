@@ -22,6 +22,7 @@
   "match.step.matching": "Comparaison {done}/{total}",
   "review.title": "Vérifier les correspondances",
   "review.hint": "Comparez chaque renumérisation à la page proposée. Seules celles marquées Sûre peuvent être exportées sans confirmation.",
+  "review.keys": "Raccourcis : j et k changent de nouveau scan, 1 à 8 choisissent une page candidate, c confirme et passe au suivant à vérifier.",
   "review.details": "Détails",
   "review.candidates": "Autres pages possibles",
   "review.page": "Page",

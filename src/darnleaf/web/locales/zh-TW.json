@@ -22,6 +22,7 @@
   "match.step.matching": "正在比對 {done}/{total}",
   "review.title": "檢查對應結果",
   "review.hint": "請把每張重掃頁面和建議的頁面對照檢查。只有標示為「明確」的項目可以不經確認直接匯出。",
+  "review.keys": "快速鍵：j 和 k 切換重掃頁，1 到 8 選擇候選頁，c 確認並跳到下一個需要檢查的項目。",
   "review.details": "細節",
   "review.candidates": "其他可能的頁面",
   "review.page": "頁碼",

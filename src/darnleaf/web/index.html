@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Replace damaged pages in a scanned PDF with fresh rescans, matched and reviewed on your own computer.">
 <meta name="darnleaf-token" content="__TOKEN__">
 <title>Darnleaf</title>
 <link rel="icon" href="logo.svg" type="image/svg+xml">
@@ -47,7 +48,7 @@
     <p class="private" data-i18n="load.private"></p>
     <div id="progress" hidden>
       <progress id="bar" max="100" value="0"></progress>
-      <span id="progress-text"></span>
+      <span id="progress-text" role="status" aria-live="polite"></span>
       <button id="cancel" class="ghost" type="button" data-i18n="match.cancel"></button>
     </div>
     <p id="error" class="error" role="alert" hidden></p>
@@ -56,6 +57,7 @@
   <section id="review" class="panel" hidden aria-labelledby="h-review">
     <h2 id="h-review"><span class="n">2</span><span data-i18n="review.title"></span></h2>
     <p class="hint" data-i18n="review.hint"></p>
+    <p class="hint keys" data-i18n="review.keys"></p>
     <div class="split">
       <ol id="rescan-list" class="rlist"></ol>
       <div id="detail" class="detail">
@@ -65,11 +67,11 @@
         </div>
         <p id="d-reason" class="reason"></p>
         <div class="tabs" role="tablist">
-          <button type="button" role="tab" data-view="side" data-i18n="view.side"></button>
-          <button type="button" role="tab" data-view="overlay" data-i18n="view.overlay"></button>
-          <button type="button" role="tab" data-view="features" data-i18n="view.features"></button>
+          <button type="button" role="tab" aria-controls="stage" data-view="side" data-i18n="view.side"></button>
+          <button type="button" role="tab" aria-controls="stage" data-view="overlay" data-i18n="view.overlay"></button>
+          <button type="button" role="tab" aria-controls="stage" data-view="features" data-i18n="view.features"></button>
         </div>
-        <div id="stage" class="stage"></div>
+        <div id="stage" class="stage" role="tabpanel"></div>
         <div class="cands">
           <span class="lbl" data-i18n="review.candidates"></span>
           <div id="cands" class="strip"></div>
@@ -87,7 +89,7 @@
 
   <section id="export" class="panel" hidden aria-labelledby="h-export">
     <h2 id="h-export"><span class="n">3</span><span data-i18n="export.title"></span></h2>
-    <p id="export-summary"></p>
+    <p id="export-summary" role="status" aria-live="polite"></p>
     <div class="row">
       <label for="mode" data-i18n="export.mode"></label>
       <select id="mode"><option value="align" data-i18n="export.align"></option><option value="fit" data-i18n="export.fit"></option></select>

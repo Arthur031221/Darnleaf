@@ -22,6 +22,7 @@
   "match.step.matching": "Vergleiche {done}/{total}",
   "review.title": "Treffer prüfen",
   "review.hint": "Vergleichen Sie jeden Neuscan mit der vorgeschlagenen Seite. Nur als Sicher markierte Treffer lassen sich ohne Bestätigung exportieren.",
+  "review.keys": "Tasten: j und k wechseln zwischen den Neuscans, 1 bis 8 wählen eine Kandidatenseite, c bestätigt und springt zum nächsten Eintrag, der geprüft werden muss.",
   "review.details": "Details",
   "review.candidates": "Weitere mögliche Seiten",
   "review.page": "Seite",

@@ -22,6 +22,7 @@
   "match.step.matching": "Comparing {done}/{total}",
   "review.title": "Review the matches",
   "review.hint": "Check each rescan against its suggested page. Only rescans labelled Clear can be exported without a confirmation.",
+  "review.keys": "Keys: j and k move between rescans, 1 to 8 pick a candidate page, c confirms and jumps to the next one that needs a check.",
   "review.details": "Details",
   "review.candidates": "Other possible pages",
   "review.page": "Page",

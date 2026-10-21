@@ -22,6 +22,7 @@
   "match.step.matching": "Comparando {done}/{total}",
   "review.title": "Revise as correspondências",
   "review.hint": "Compare cada redigitalização com a página sugerida. Só as marcadas como Segura podem ser exportadas sem confirmação.",
+  "review.keys": "Atalhos: j e k alternam entre as novas digitalizações, de 1 a 8 escolhem uma página candidata e c confirma e vai para a próxima que precisa de verificação.",
   "review.details": "Detalhes",
   "review.candidates": "Outras páginas possíveis",
   "review.page": "Página",
