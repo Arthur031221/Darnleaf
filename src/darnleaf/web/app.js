@@ -104,7 +104,16 @@ function statusOf(i) {
   return p && p.page === d.choice[i] ? p.status : "check";
 }
 const badgeText = (s) => t(`status.${s}`);
-const img = (src, alt) => Object.assign(document.createElement("img"), { src, alt: alt || "", loading: "lazy" });
+// Pictures fade in once decoded, so a slow one shows a quiet placeholder instead of popping in.
+function img(src, alt, lazy = true) {
+  const el = Object.assign(document.createElement("img"), { alt: alt || "", loading: lazy ? "lazy" : "eager" });
+  if (src) {
+    el.classList.add("pending");
+    el.onload = el.onerror = () => el.classList.remove("pending");
+    el.src = src;
+  }
+  return el;
+}
 
 function turnsFor(i, page) {
   const p = state.data.proposals[i];
@@ -112,22 +121,38 @@ function turnsFor(i, page) {
   return c ? c.quarter_turns : 0;
 }
 
+// The list is built once per set of rescans and then updated in place, so thumbnails never reload or flicker.
 function renderList() {
   const d = state.data, ol = $("rescan-list");
-  ol.replaceChildren();
-  d.rescans.forEach((r, i) => {
+  if (ol.children.length !== d.rescans.length) {
+    ol.replaceChildren();
+    d.rescans.forEach((r, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.append(
+        img("", "", true),
+        Object.assign(document.createElement("span"), { className: "name", textContent: r.label, title: r.label }),
+        document.createElement("span"),
+      );
+      b.onclick = () => { state.selected = i; state.candidate = null; render(); };
+      const li = document.createElement("li");
+      li.append(b);
+      ol.append(li);
+    });
+  }
+  d.rescans.forEach((_, i) => {
     const s = statusOf(i), page = d.choice[i];
-    const b = document.createElement("button");
-    b.type = "button";
+    const b = ol.children[i].firstChild, [thumb, , badge] = b.children;
     b.setAttribute("aria-current", String(i === state.selected));
-    const name = Object.assign(document.createElement("span"), { className: "name", textContent: r.label, title: r.label });
-    const badge = Object.assign(document.createElement("span"), { className: `badge ${s}`, textContent: `${badgeText(s)}${page ? ` · ${t("review.page_short", { page })}` : ""}` });
-    b.append(img(asset(`/api/rescan/${i}?size=160&turns=${page ? turnsFor(i, page) : 0}`), ""), name, badge);
-    b.onclick = () => { state.selected = i; state.candidate = null; render(); };
+    badge.className = `badge ${s}`;
+    badge.textContent = `${badgeText(s)}${page ? ` · ${t("review.page_short", { page })}` : ""}`;
+    const src = asset(`/api/rescan/${i}?size=160&turns=${page ? turnsFor(i, page) : 0}`);
+    if (thumb.getAttribute("src") !== src) {
+      thumb.classList.add("pending");
+      thumb.onload = thumb.onerror = () => thumb.classList.remove("pending");
+      thumb.src = src;
+    }
     if (i === state.selected) requestAnimationFrame(() => b.scrollIntoView({ block: "nearest" }));
-    const li = document.createElement("li");
-    li.append(b);
-    ol.append(li);
   });
 }
 
@@ -161,7 +186,7 @@ function renderDetail() {
     const turns = turnsFor(i, page);
     const fig = (src, cap) => {
       const f = document.createElement("figure");
-      f.append(img(src, cap), Object.assign(document.createElement("figcaption"), { textContent: cap }));
+      f.append(img(src, cap, false), Object.assign(document.createElement("figcaption"), { textContent: cap }));
       return f;
     };
     if (state.view === "side") {

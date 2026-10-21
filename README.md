@@ -28,7 +28,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf serve
 ```
 
-Press **Try the bundled sample** to run the whole flow on a synthetic 40-page booklet, or drop in your own files. The [replay demo](https://arthur031221.github.io/Darnleaf/) plays a recorded run of that sample in your browser. It doesn't take files. To skip the upload step, pass the files: `darnleaf serve original.pdf rescans/*.jpg` loads them and starts matching before the browser opens.
+Press **Try the bundled sample** to run the whole flow on a synthetic 40-page booklet, or drop in your own files. The [replay demo](https://arthur031221.github.io/Darnleaf/) plays a recorded run of that sample in your browser and doesn't take files. To skip the upload step, pass the files: `darnleaf serve original.pdf rescans/*.jpg` loads them and starts matching before the browser opens.
 
 From a terminal:
 
@@ -57,6 +57,7 @@ receipt -> job/repaired.receipt.json
 | --- | --- |
 | Open both files and work out which photo belongs to which page | Suggested page per rescan, with the matched features and an overlay of old ink against new ink |
 | Rotate sideways and upside-down scans | Quarter turns are found from the match |
+| Square up a phone photo taken at an angle | The perspective is corrected when the page is aligned |
 | Resize and position each image to fit its page | Aligned onto the old page's frame, or fitted with white padding |
 | Insert the new page, delete the old one, hope the bookmarks survive | The page object stays in place, so bookmarks and links that point at it still work (covered by a test) |
 | No record of what changed | A receipt with SHA-256 of the original, the output and every rescan, plus the evidence for each swap |
@@ -77,6 +78,8 @@ Measured on synthetic booklets built from public-domain text (*Pride and Prejudi
 None of the 45 Clear matches was wrong. With only 45 trials, the real wrong rate could still be as high as about 6.7% (the rule of three, 95% confidence). The top suggestion was right (or correctly None) for 95.6% of rescans, and a Check match is still a suggestion you review.
 
 Treat these numbers as an upper bound. The original and the rescan come from the same clean bitmap, so they agree better than a real flatbed rescan of a worn page would. Real documents will likely give more Check and None results, not fewer. All 45 Clear matches are text and figure pages with distinct content. The form and blank cases are the same fixed pages in every seed, so they're fewer independent trials than the counts suggest. Generating the bundled sample and then running match and apply on its 7 rescans and 40 pages took about 20 seconds in total on the 3-core Linux machine that built it. Larger jobs scale with pages times rescans in the shortlist pass.
+
+Phone photos are rarely square to the page. With `--tilt 0.04`, every rescan in the same ten seeds is warped as if photographed at an angle, each corner moved by up to 4% of the page. Version 0.4.0 gives 46 Clear and none wrong, and the top suggestion is right (or correctly None) for 77 of 90. Version 0.3.0 gave 31 Clear and 46 of 90, because it only modelled a flat scan. Blank pages fall to None under tilt, since the desk edge reads as ink, so place them by hand. The run is in `docs/benchmark-tilted.json`.
 
 ## Install
 

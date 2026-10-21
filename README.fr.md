@@ -59,6 +59,8 @@ Sur 45 correspondances Sûres, aucune n'était fausse. Avec seulement 45 essais,
 
 Lisez ces chiffres comme une borne supérieure. L'original et la nouvelle numérisation viennent du même bitmap propre, donc ils concordent mieux qu'une vraie numérisation à plat d'une page usée. Sur des documents réels, attendez-vous à plus de À vérifier et d'Aucune correspondance. De plus, les 45 correspondances Sûres sont toutes des pages de texte ou de figures au contenu distinct, et les formulaires et pages blanches sont les mêmes pages fixes pour toutes les graines.
 
+Les photos prises au téléphone sont rarement parallèles à la page. Avec `--tilt 0.04`, chaque nouvelle numérisation des mêmes dix graines est déformée comme si elle avait été photographiée en biais, chaque coin étant déplacé jusqu'à 4 % de la page. La version 0.4.0 donne 46 Sûre et aucune erreur, et la première suggestion est bonne (ou correctement Aucune) pour 77 sur 90. La 0.3.0 donnait 31 Sûre et 46 sur 90, car elle ne modélisait qu'une numérisation à plat. Les pages blanches passent à Aucune en biais, parce que le bord de la table ressemble à de l'encre : placez-les à la main. L'essai est dans `docs/benchmark-tilted.json`.
+
 ## Installation
 
 ```sh

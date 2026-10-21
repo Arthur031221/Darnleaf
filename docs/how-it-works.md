@@ -13,7 +13,7 @@ Every original page is rendered with PDFium and every rescan is loaded, then bot
 ## Matching
 
 1. **Shortlist.** The coarse feature subset of the rescan is matched against every page and counted for geometric consistency. The ten best pages go on.
-2. **Verify.** Full feature matching with Lowe's ratio test, then a RANSAC similarity transform (`estimateAffinePartial2D`). The transform must be plausible: scale between 0.7 and 1.4, and within 12 degrees of a right angle. The nearest right angle gives the rescan's rotation, so photos taken sideways or upside down work.
+2. **Verify.** Full feature matching with Lowe's ratio test, then a RANSAC similarity transform (`estimateAffinePartial2D`). A phone photo taken at a slant is not a similarity, so a RANSAC homography (`findHomography`) is tried too. It replaces the similarity only if it explains at least 25% more of the matches and the corners of the rescan land within 12% of the page diagonal of where the best similarity puts them, so a flat scan never takes the looser model. The transform must be plausible: scale between 0.7 and 1.4, and within 12 degrees of a right angle, measured at the middle of the rescan. The nearest right angle gives the rescan's rotation, so photos taken sideways or upside down work.
 3. **Agreement.** The rescan's ink mask is warped onto the page and compared. This is only a gate (at least 0.65), not a ranking signal.
 4. **Score.** `1 - exp(-inliers / 150)`, slightly scaled by agreement. With OCR, 65% image and 35% word overlap.
 5. **Assign.** The Hungarian algorithm gives each page to at most one rescan, over candidates with at least 25 consistent features.
@@ -54,6 +54,6 @@ Export opens the original with pikepdf and swaps each chosen page's content and 
 
 ## Benchmark
 
-`scripts/benchmark.py` builds synthetic booklets from public-domain text, damages some pages, rescans them with skew, noise and rotation, and scores the matcher against the known answers. Thresholds were tuned on seeds 1 to 3. The held-out run (seeds 101 to 110, 90 rescans) is in `docs/benchmark-heldout.json`.
+`scripts/benchmark.py` builds synthetic booklets from public-domain text, damages some pages, rescans them with skew, noise and rotation, and scores the matcher against the known answers. Thresholds were tuned on seeds 1 to 3. The held-out run (seeds 101 to 110, 90 rescans) is in `docs/benchmark-heldout.json`. `--tilt 0.04` photographs every rescan at a slant (each corner moves by up to 4% of the page) and `docs/benchmark-tilted.json` holds that run.
 
 The rescan and the original scan come from the same clean bitmap, so their features agree better than a real flatbed rescan of a real worn page would. Treat these numbers as an upper bound on real-world quality.

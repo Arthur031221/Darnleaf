@@ -157,3 +157,15 @@ test("the reason under a match follows the interface language", async () => {
   await page.waitFor("document.documentElement.lang === 'en'");
   assert.ok((await page.eval("document.querySelector('#d-reason').textContent")).includes(plain));
 });
+
+test("moving through the list keeps its buttons and thumbnails, and loaded pictures are shown", async () => {
+  await page.goto(server.url);
+  await page.waitFor("!document.querySelector('#review').hidden && document.querySelectorAll('#rescan-list li').length > 0", 120000);
+  await page.eval("window.__keep = [document.querySelector('#rescan-list li button'), document.querySelector('#rescan-list img')]");
+  await press("j");
+  await press("k");
+  assert.equal(await page.eval("window.__keep[0] === document.querySelector('#rescan-list li button') && window.__keep[1] === document.querySelector('#rescan-list img')"), true);
+  await page.waitFor("document.querySelector('#stage img')?.complete");
+  assert.equal(await page.eval("document.querySelector('#stage img').classList.contains('pending')"), false);
+  await page.waitFor("getComputedStyle(document.querySelector('#stage img')).opacity === '1'");
+});

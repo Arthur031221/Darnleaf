@@ -1,5 +1,9 @@
+from pathlib import Path
+
+import cv2
 import numpy as np
 import pytest
+from PIL import Image
 
 from darnleaf import assign, matcher, signature
 
@@ -85,3 +89,75 @@ def test_rotation_of_rescans_is_recovered(case, matched):
         want = (turned[sources[proposal.rescan].label] // 90) % 4
         top = proposal.candidates[0]
         assert top.quarter_turns == want
+
+
+def _homography(strength: float, size=(600, 800)):
+    w, h = size
+    corners = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
+    # The top edge is pulled in and down, the bottom stays: a page photographed from below.
+    moved = corners + np.float32([[1, 1], [-1, 0.5], [0, 0], [0, 0]]) * strength * np.float32([w, h])
+    return cv2.getPerspectiveTransform(corners, moved)
+
+
+def test_a_mild_keystone_is_plausible_and_a_wild_one_is_not():
+    size = (600, 800)
+    assert matcher.plausible(_homography(0.04, size), size)
+    assert matcher.plausible(_homography(0.07, size), size)
+    assert not matcher.plausible(_homography(0.3, size), size)
+    mirrored = np.array([[-1.0, 0, 600], [0, 1.0, 0], [0, 0, 1.0]])
+    assert matcher._keystone(mirrored, size) == float("inf")
+
+
+def test_perspective_fit_is_used_only_when_it_explains_clearly_more():
+    rng = np.random.default_rng(3)
+    src = rng.uniform(0, 600, (150, 2)).astype(np.float32) * [1, 800 / 600]
+    size = (600, 800)
+
+    flat = (src * 1.02 + 15).astype(np.float32)
+    inliers, matrix = matcher._fit(src, flat, size)
+    assert inliers >= 145 and matrix[2, 0] == matrix[2, 1] == 0
+
+    slanted = cv2.perspectiveTransform(src.reshape(-1, 1, 2), _homography(0.05, size)).reshape(-1, 2)
+    slanted[:20] += rng.uniform(-200, 200, (20, 2))
+    inliers, matrix = matcher._fit(src, slanted.astype(np.float32), size)
+    assert inliers >= 125 and abs(matrix[2, 0]) + abs(matrix[2, 1]) > 0
+
+
+def test_rescans_photographed_at_a_slant_still_match_and_never_clear_wrongly(case, tmp_path):
+    import importlib.util
+    import shutil
+
+    from darnleaf import imaging, pipeline
+
+    spec = importlib.util.spec_from_file_location("benchmark", Path(__file__).parent.parent / "scripts" / "benchmark.py")
+    bench = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bench)
+    shutil.copytree(case["dir"] / "rescans", tmp_path / "rescans")
+    bench.tilt_rescans(tmp_path / "rescans", 0.05, seed=7)
+    sources = imaging.expand_sources(sorted((tmp_path / "rescans").glob("*.jpg")))
+    truth = case["truth"]["truth"]
+    found = 0
+    for proposal in pipeline.run(case["pdf"], sources):
+        real = truth[sources[proposal.rescan].label]
+        if proposal.status == "clear":
+            assert proposal.page + 1 == real
+        if real not in (None, 2, *range(30, 36)) and proposal.page is not None and proposal.page + 1 == real:
+            found += 1
+    assert found >= 3, "most distinct pages should still be found under a 5% keystone"
+
+
+def test_slanted_rescan_is_straightened_onto_the_page(case):
+    from darnleaf import evidence, imaging
+
+    source = imaging.expand_sources([case["rescans"][3]])[0]
+    page = int(case["truth"]["truth"][source.label]) - 1
+    rescan = source.load()
+    w, h = rescan.size
+    corners = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
+    moved = corners + np.float32([[1, 1], [-1, 0.5], [0, 0], [0, 0]]) * 0.04 * np.float32([w, h])
+    slanted = cv2.warpPerspective(np.asarray(rescan), cv2.getPerspectiveTransform(corners, moved), (w, h), borderValue=(60, 60, 60))
+    target = imaging.render_pdf_page(case["pdf"], page, longest=1000)
+    aligned = evidence.align(Image.fromarray(slanted), target)
+    assert aligned is not None
+    a, b = np.asarray(aligned.convert("L"), np.float32), np.asarray(target.convert("L"), np.float32)
+    assert np.corrcoef(a.ravel(), b.ravel())[0, 1] > 0.85

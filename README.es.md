@@ -59,6 +59,8 @@ De 45 coincidencias Seguras, ninguna fue errónea. Con solo 45 pruebas, la tasa 
 
 Léelo como un límite superior. El original y el reescaneo salen del mismo mapa de bits limpio, así que coinciden mejor que un reescaneo real en un escáner de cama plana de una página gastada. Con documentos reales es probable que haya más Revisar y Sin coincidencia. Además, las 45 coincidencias Seguras son todas páginas de texto y figuras con contenido distinto, y los formularios y las páginas en blanco son las mismas páginas fijas en todas las semillas.
 
+Las fotos de móvil rara vez quedan paralelas a la página. Con `--tilt 0.04`, cada reescaneo de las mismas diez semillas se deforma como si se hubiera fotografiado en ángulo, con cada esquina desplazada hasta un 4% de la página. La versión 0.4.0 da 46 Seguras y ninguna errónea, y la primera sugerencia es correcta (o correctamente Sin coincidencia) en 77 de 90. La 0.3.0 daba 31 Seguras y 46 de 90, porque solo modelaba un escaneo plano. Las páginas en blanco pasan a Sin coincidencia con inclinación, porque el borde de la mesa parece tinta: colócalas a mano. La ejecución está en `docs/benchmark-tilted.json`.
+
 ## Instalación
 
 ```sh

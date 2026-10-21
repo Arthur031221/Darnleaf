@@ -28,7 +28,7 @@ Repeated forms and blank pages are always **Check**. Two copies of the same form
 
 ## Placement
 
-- **Align to the original page** (default) warps the rescan onto the page's frame, so margins and size match the neighbours. If the alignment cannot be computed it falls back to fit and the receipt says `"placement": "fit"`.
+- **Align to the original page** (default) warps the rescan onto the page's frame, so margins and size match the neighbours. A photo taken at a slant is straightened in the same step. If the alignment cannot be computed it falls back to fit and the receipt says `"placement": "fit"`.
 - **Fit inside the page** keeps the rescan unwarped and pads it with white to the page's aspect ratio.
 
 Pages you did not replace are the original page objects, saved without re-rendering. Annotations on a replaced page would be lost, so export refuses until you tick "drop annotations" (CLI: `--drop-annotations`).

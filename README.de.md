@@ -59,6 +59,8 @@ Von 45 Sicher-Treffern war keiner falsch. Bei nur 45 Versuchen kann die echte Fe
 
 Lesen Sie diese Zahlen als Obergrenze. Original und neuer Scan stammen aus derselben sauberen Bitmap und passen deshalb besser zusammen als ein echter Flachbettscan einer abgenutzten Seite. Bei echten Dokumenten sind mehr Prüfen und Kein Treffer zu erwarten. Außerdem sind alle 45 Sicher-Treffer Text- und Bildseiten mit unterschiedlichem Inhalt, und Formulare und leere Seiten sind über alle Seeds hinweg dieselben festen Seiten.
 
+Handyfotos liegen selten parallel zur Seite. Mit `--tilt 0.04` wird jeder neue Scan derselben zehn Seeds so verzerrt, als wäre er schräg fotografiert worden, jede Ecke um bis zu 4 % der Seite verschoben. Version 0.4.0 liefert 46 Sicher ohne einen Fehler, und der erste Vorschlag stimmt (oder ist korrekt Kein Treffer) bei 77 von 90. Version 0.3.0 kam auf 31 Sicher und 46 von 90, weil sie nur flache Scans modellierte. Leere Seiten werden bei Schräglage zu Kein Treffer, weil die Tischkante wie Tinte wirkt: Ordnen Sie sie von Hand zu. Der Lauf liegt in `docs/benchmark-tilted.json`.
+
 ## Installation
 
 ```sh

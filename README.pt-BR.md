@@ -59,6 +59,8 @@ De 45 correspondências Seguras, nenhuma estava errada. Com apenas 45 tentativas
 
 Leia como um limite superior. O original e a nova digitalização saem do mesmo bitmap limpo, então combinam melhor do que uma digitalização real em scanner de mesa de uma página gasta. Em documentos reais, espere mais Verificar e Sem correspondência. Além disso, as 45 correspondências Seguras são todas páginas de texto e figuras com conteúdo distinto, e os formulários e as páginas em branco são as mesmas páginas fixas em todas as sementes.
 
+Fotos de celular raramente ficam paralelas à página. Com `--tilt 0.04`, cada nova digitalização das mesmas dez sementes é deformada como se tivesse sido fotografada em ângulo, com cada canto deslocado até 4% da página. A versão 0.4.0 dá 46 Segura e nenhuma errada, e a primeira sugestão está certa (ou corretamente Sem correspondência) em 77 de 90. A 0.3.0 dava 31 Segura e 46 de 90, porque só modelava uma digitalização plana. Páginas em branco viram Sem correspondência com inclinação, porque a borda da mesa parece tinta: posicione-as à mão. A execução está em `docs/benchmark-tilted.json`.
+
 ## Instalação
 
 ```sh

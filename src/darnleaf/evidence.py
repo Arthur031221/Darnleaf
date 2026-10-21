@@ -9,14 +9,14 @@ import numpy as np
 from PIL import Image
 
 from . import limits, signature
-from .matcher import plausible, verify
+from .matcher import consistent_matches, plausible, verify
 
 ALIGN_MIN_INLIERS = 25
 
 
 @dataclass
 class Registration:
-    """Similarity transform that carries the rescan onto the page, in full-resolution pixels."""
+    """3x3 transform (a similarity, or a mild perspective for a slanted photo) that carries the rescan onto the page, in full-resolution pixels."""
 
     matrix: np.ndarray
     inliers: int
@@ -34,9 +34,9 @@ def register(rescan: Image.Image, page: Image.Image) -> Registration | None:
     """Estimate how the upright rescan sits on the page. None when they do not agree."""
     (sig_r, s1), (sig_p, s2) = _work(rescan), _work(page)
     inliers, matches, matrix = verify(sig_r, sig_p)
-    if matrix is None or inliers < ALIGN_MIN_INLIERS or not plausible(matrix):
+    if matrix is None or inliers < ALIGN_MIN_INLIERS or not plausible(matrix, (sig_r.gray.shape[1], sig_r.gray.shape[0])):
         return None
-    full = (np.diag([1 / s2, 1 / s2, 1.0]) @ np.vstack([matrix, [0, 0, 1]]) @ np.diag([s1, s1, 1.0]))[:2]
+    full = np.diag([1 / s2, 1 / s2, 1.0]) @ matrix @ np.diag([s1, s1, 1.0])
     return Registration(full, inliers, matches)
 
 
@@ -47,7 +47,7 @@ def align(rescan: Image.Image, page: Image.Image) -> Image.Image | None:
         return None
     color = cv2.cvtColor(np.asarray(rescan.convert("RGB")), cv2.COLOR_RGB2BGR)
     # Anything the rescan does not cover becomes white paper rather than black.
-    warped = cv2.warpAffine(color, reg.matrix, page.size, flags=cv2.INTER_CUBIC, borderValue=(255, 255, 255))
+    warped = cv2.warpPerspective(color, reg.matrix, page.size, flags=cv2.INTER_CUBIC, borderValue=(255, 255, 255))
     return Image.fromarray(cv2.cvtColor(warped, cv2.COLOR_BGR2RGB))
 
 
@@ -64,15 +64,7 @@ def difference(aligned: Image.Image, page: Image.Image) -> Image.Image:
 def match_map(rescan: Image.Image, page: Image.Image, limit: int = 60) -> Image.Image | None:
     """Side by side picture with lines between a sample of the consistent features."""
     (sig_r, _), (sig_p, _) = _work(rescan), _work(page)
-    if sig_r.descriptors is None or sig_p.descriptors is None:
-        return None
-    knn = cv2.BFMatcher(cv2.NORM_L2).knnMatch(sig_r.descriptors, sig_p.descriptors, k=2)
-    good = [m for m, n in (p for p in knn if len(p) == 2) if m.distance < 0.78 * n.distance]
-    if len(good) < 8:
-        return None
-    src = sig_r.keypoints[[m.queryIdx for m in good]]
-    dst = sig_p.keypoints[[m.trainIdx for m in good]]
-    matrix, mask = cv2.estimateAffinePartial2D(src, dst, method=cv2.RANSAC, ransacReprojThreshold=4.0, maxIters=3000, confidence=0.995)
+    good, _, matrix, mask = consistent_matches(sig_r.descriptors, sig_r.keypoints, sig_p.descriptors, sig_p.keypoints, (sig_r.gray.shape[1], sig_r.gray.shape[0]))
     if matrix is None:
         return None
     keep = [m for m, ok in zip(good, mask.ravel(), strict=True) if ok]

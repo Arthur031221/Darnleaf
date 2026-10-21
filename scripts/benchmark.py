@@ -1,6 +1,7 @@
 """Score the matcher against synthetic cases with known answers.
 
     python scripts/benchmark.py --seeds 101-110 --out benchmark.json
+    python scripts/benchmark.py --seeds 101-110 --tilt 0.04     # rescans photographed at a slant
 
 The matcher thresholds were tuned on seeds 1 to 3. Report numbers from other seeds.
 """
@@ -9,10 +10,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import sys
 import tempfile
 from collections import Counter
 from pathlib import Path
+
+import cv2
+import numpy as np
 
 from darnleaf import imaging, pipeline, sample
 
@@ -34,12 +39,26 @@ def parse_seeds(text: str) -> list[int]:
     return [int(x) for x in text.split(",")]
 
 
-def run_case(seed: int, pages: int, use_ocr: bool) -> list[dict]:
+def tilt_rescans(folder: Path, strength: float, seed: int) -> None:
+    """Photograph each rescan at a slant: every corner moves by up to `strength` of the page size, on a dark desk."""
+    rng = random.Random(seed)
+    for path in sorted(folder.glob("*.jpg")):
+        image = cv2.imread(str(path))
+        h, w = image.shape[:2]
+        corners = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
+        moved = np.float32([[x + rng.uniform(-strength, strength) * w, y + rng.uniform(-strength, strength) * h] for x, y in corners])
+        warped = cv2.warpPerspective(image, cv2.getPerspectiveTransform(corners, moved), (w, h), borderValue=(60, 60, 60))
+        cv2.imwrite(str(path), warped, [cv2.IMWRITE_JPEG_QUALITY, 80])
+
+
+def run_case(seed: int, pages: int, use_ocr: bool, tilt: float = 0.0) -> list[dict]:
     rows = []
     with tempfile.TemporaryDirectory() as tmp:
         case = Path(tmp)
         truth = sample.make_case(case, pages=pages, seed=seed)
         turned = json.loads((case / "truth.json").read_text())["turned_ccw"]
+        if tilt:
+            tilt_rescans(case / "rescans", tilt, seed)
         sources = imaging.expand_sources(sorted((case / "rescans").glob("*.jpg")))
         proposals = pipeline.run(case / "original.pdf", sources, use_ocr=use_ocr)
         for source, proposal in zip(sources, proposals, strict=True):
@@ -85,15 +104,17 @@ def main() -> int:
     parser.add_argument("--seeds", default="101-110")
     parser.add_argument("--pages", type=int, default=90)
     parser.add_argument("--ocr", action="store_true")
+    parser.add_argument("--tilt", type=float, default=0.0, help="slant every rescan like a phone photo; 0.04 moves each corner by up to 4%% of the page")
     parser.add_argument("--out")
     args = parser.parse_args()
     rows: list[dict] = []
     for seed in parse_seeds(args.seeds):
-        rows += run_case(seed, args.pages, args.ocr)
+        rows += run_case(seed, args.pages, args.ocr, args.tilt)
         print(f"seed {seed} done", file=sys.stderr)
     result = summarise(rows)
     result["seeds"] = parse_seeds(args.seeds)
     result["pages"] = args.pages
+    result["tilt"] = args.tilt
     text = json.dumps(result, indent=2)
     if args.out:
         Path(args.out).write_text(text + "\n")

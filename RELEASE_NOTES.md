@@ -1,11 +1,8 @@
-## Darnleaf 0.3.0
+## Darnleaf 0.4.0
 
-- The bundled sample button now loads the sample and starts matching in one press. Clear and sample are disabled while a match runs.
-- The reason shown under each match is translated with the interface, in all nine languages. The matcher now returns a `reason_key` and `reason_args` next to the English `reason`, so the JSON output stays compatible.
-- `darnleaf serve original.pdf rescans/*.jpg` loads the files and starts matching before the browser opens. A bad path is reported in the terminal and the server does not start.
-- iPhone HEIC and HEIF photos are accepted with `pip install "darnleaf[heic]"`. Without the extra, the error says how to enable it.
-- CI also runs the portable tests on macOS and Windows.
-- A test now checks that every locale file has the same keys and placeholders.
+- Rescans photographed at a slant now match and align. The matcher tries a perspective fit next to the flat one and uses it only when it explains clearly more of the matches, so flat scans give the same results as before. On ten held-out seeds with every rescan tilted (`scripts/benchmark.py --tilt 0.04`) the Clear count rises from 31 to 46 of 90 and the right answer comes first for 77 of 90 instead of 46, with no wrong Clear in either run. The held-out result on flat scans is unchanged.
+- Aligned export straightens a slanted photo onto the page frame, and the overlay and matched-features views use the same fit.
+- The review list updates in place instead of reloading every thumbnail after each confirm, and pictures fade in once they load.
+- `scripts/benchmark.py` has a `--tilt` option, and the tilted run is saved in `docs/benchmark-tilted.json`.
 
-Install: `pipx install git+https://github.com/Arthur031221/Darnleaf@v0.3.0`, or install the attached wheel.
-
+Install: `pipx install git+https://github.com/Arthur031221/Darnleaf@v0.4.0`, or install the attached wheel.
