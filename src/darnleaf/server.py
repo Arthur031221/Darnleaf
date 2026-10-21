@@ -11,6 +11,7 @@ import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib import resources
+from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 from . import __version__, limits
@@ -70,6 +71,21 @@ class App:
     def allowed_hosts(self) -> set[str]:
         names = {self._authority(self.host), "localhost", "127.0.0.1", "[::1]"} if self.host in ("localhost", "127.0.0.1", "::1") else {self._authority(self.host)}
         return {f"{name}:{self.port}" for name in names}
+
+    def preload(self, original: Path, rescans: list[Path], use_ocr: bool = False) -> None:
+        """Load files given on the command line and start matching, so the browser opens on the review."""
+        session = self.session
+
+        def read(path: Path) -> bytes:
+            try:
+                return path.read_bytes()
+            except OSError as exc:
+                raise InputError(f"cannot read {path}: {exc.strerror or exc}") from exc
+
+        session.set_original(original.name, read(original))
+        for path in rescans:
+            session.add_rescan(path.name, read(path))
+        session.start(use_ocr)
 
     def serve(self) -> None:
         try:

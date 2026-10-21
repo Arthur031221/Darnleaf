@@ -1,10 +1,11 @@
-## Darnleaf 0.2.0
+## Darnleaf 0.3.0
 
-- Fixed: downloading the repaired PDF or receipt failed when the original's file name had non-Latin characters (for example Chinese, Japanese or Korean). The server now sends an ASCII name plus the UTF-8 name.
-- Fixed: on a phone the review screen scrolled sideways.
-- Review is faster: Confirm jumps to the next rescan that still needs a check. Keys: j and k to move, 1 to 8 to pick a candidate page, c to confirm.
-- Accessibility: progress and export status are announced, and the view tabs support the arrow keys.
-- The replay demo shows the sample button first, and a page without a bundled preview shows a placeholder instead of a broken image.
-- The demo page has a description and share preview tags.
+- The bundled sample button now loads the sample and starts matching in one press. Clear and sample are disabled while a match runs.
+- The reason shown under each match is translated with the interface, in all nine languages. The matcher now returns a `reason_key` and `reason_args` next to the English `reason`, so the JSON output stays compatible.
+- `darnleaf serve original.pdf rescans/*.jpg` loads the files and starts matching before the browser opens. A bad path is reported in the terminal and the server does not start.
+- iPhone HEIC and HEIF photos are accepted with `pip install "darnleaf[heic]"`. Without the extra, the error says how to enable it.
+- CI also runs the portable tests on macOS and Windows.
+- A test now checks that every locale file has the same keys and placeholders.
 
-Install: `pipx install git+https://github.com/Arthur031221/Darnleaf@v0.2.0`, or install the attached wheel.
+Install: `pipx install git+https://github.com/Arthur031221/Darnleaf@v0.3.0`, or install the attached wheel.
+

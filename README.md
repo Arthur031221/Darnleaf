@@ -28,7 +28,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf serve
 ```
 
-Press **Try the bundled sample** to run the whole flow on a synthetic 40-page booklet, or drop in your own files. The [replay demo](https://arthur031221.github.io/Darnleaf/) plays a recorded run of that sample in your browser. It doesn't take files.
+Press **Try the bundled sample** to run the whole flow on a synthetic 40-page booklet, or drop in your own files. The [replay demo](https://arthur031221.github.io/Darnleaf/) plays a recorded run of that sample in your browser. It doesn't take files. To skip the upload step, pass the files: `darnleaf serve original.pdf rescans/*.jpg` loads them and starts matching before the browser opens.
 
 From a terminal:
 
@@ -127,6 +127,7 @@ Or install Tesseract and have it on your PATH. Then tick "Also read the text" in
 | Task | Command |
 | --- | --- |
 | Open the review screen | `darnleaf serve` |
+| Open it with files already loaded | `darnleaf serve original.pdf rescans/*.jpg` |
 | Print suggestions | `darnleaf match original.pdf rescans/*.jpg` |
 | Print them as JSON | `darnleaf match original.pdf rescans/*.jpg --json` |
 | Write the repaired PDF from Clear matches | `darnleaf apply original.pdf rescans/*.jpg -o fixed.pdf` |
@@ -143,7 +144,8 @@ More in [docs/usage.md](docs/usage.md) and [docs/how-it-works.md](docs/how-it-wo
 - Up to 200 pages in the original, 40 rescans, 400 MB for the original and 60 MB per rescan.
 - Pages with annotations aren't replaced unless you say the annotations may be dropped.
 - Two near-identical pages can't be told apart from images, so they become Check when the runner-up scores close. A blank page carries no evidence and is always Check.
-- The interface is translated into nine languages. The matcher's reason text is English only.
+- The interface is translated into nine languages, including the reason under each match. The output of `darnleaf match` is English.
+- iPhone HEIC photos need `pip install "darnleaf[heic]"`. Everything else (PNG, JPEG, TIFF, BMP, WebP, PDF) works without it.
 
 ## Contributing
 

@@ -84,7 +84,16 @@ def cmd_sample(args) -> int:
 def cmd_serve(args) -> int:
     from .server import App
 
+    if bool(args.original) != bool(args.rescans):
+        raise InputError("give the original PDF and at least one rescan, or neither")
     app = App(args.host, args.port)
+    if args.original:
+        try:
+            app.preload(args.original, args.rescans, args.ocr)
+        except InputError:
+            app.session.close()
+            app.httpd.server_close()
+            raise
     print(f"Darnleaf {__version__} is running at {app.url}  (Ctrl+C to stop)", flush=True)
     if not args.no_open:
         webbrowser.open(app.url)
@@ -100,7 +109,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"darnleaf {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    s = sub.add_parser("serve", help="open the review UI in your browser")
+    s = sub.add_parser("serve", help="open the review UI in your browser, optionally with files already matched")
+    s.add_argument("original", type=Path, nargs="?", help="a PDF to load and match straight away")
+    s.add_argument("rescans", type=Path, nargs="*", help="the rescans to match against it")
+    s.add_argument("--ocr", action="store_true", help="use text as a second signal when an OCR engine is installed")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8765)
     s.add_argument("--no-open", action="store_true")

@@ -21,7 +21,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf serve
 ```
 
-Mit **Mitgeliefertes Beispiel ausprobieren** läuft der ganze Ablauf an einem synthetischen Heft mit 40 Seiten durch. Sie können auch eigene Dateien ablegen. Die [Replay-Demo](https://arthur031221.github.io/Darnleaf/) spielt im Browser einen echten Lauf dieses Beispiels ab. Dateien nimmt sie nicht an.
+Mit **Mitgeliefertes Beispiel ausprobieren** läuft der ganze Ablauf an einem synthetischen Heft mit 40 Seiten durch. Sie können auch eigene Dateien ablegen. Die [Replay-Demo](https://arthur031221.github.io/Darnleaf/) spielt im Browser einen echten Lauf dieses Beispiels ab. Dateien nimmt sie nicht an. Mit `darnleaf serve original.pdf rescans/*.jpg` werden die Dateien gleich geladen und die Zuordnung gestartet.
 
 ```console
 $ darnleaf sample job
@@ -74,7 +74,7 @@ Python 3.10 oder neuer. Bisher nur unter Linux getestet und noch nicht auf PyPI.
 - Bis zu 200 Seiten im Original, 40 neue Scans, 400 MB für das Original und 60 MB je Scan.
 - Seiten mit Anmerkungen werden nicht ersetzt, solange Sie nicht erlauben, die Anmerkungen zu verwerfen.
 - Zwei fast identische Seiten lassen sich allein am Bild nicht unterscheiden, sie werden deshalb Prüfen, wenn der zweite Kandidat nah dran ist. Eine leere Seite liefert keinen Beleg und ist immer Prüfen.
-- Die Oberfläche ist in neun Sprachen übersetzt. Der Begründungstext der Zuordnung ist nur auf Englisch.
+- Die Oberfläche ist in neun Sprachen übersetzt, auch die Begründung unter jeder Zuordnung. Die Ausgabe von `darnleaf match` ist englisch. HEIC-Fotos vom iPhone brauchen `pip install "darnleaf[heic]"`.
 
 Mehr dazu in der englischen Dokumentation: [docs/usage.md](docs/usage.md) und [docs/how-it-works.md](docs/how-it-works.md). Zum Mitmachen siehe [CONTRIBUTING.md](CONTRIBUTING.md). MIT-Lizenz, siehe [LICENSE](LICENSE).
 

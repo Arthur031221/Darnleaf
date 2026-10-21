@@ -74,6 +74,7 @@ function render() {
   // The replay cannot take files, so until the sample is loaded it is the one thing to press.
   if (STATIC) $("sample").className = info ? "ghost" : "primary";
   $("clear").hidden = !d.rescans.length;
+  $("clear").disabled = $("sample").disabled = busy;
   $("ocr-wrap").hidden = !d.ocr;
   const notes = $("notes");
   notes.replaceChildren();
@@ -146,7 +147,7 @@ function renderDetail() {
   $("d-title").textContent = d.rescans[i].label;
   $("d-badge").className = `badge ${s}`;
   $("d-badge").textContent = badgeText(s);
-  $("d-reason").textContent = p ? `${t("review.details")}: ${p.reason}` : "";
+  $("d-reason").textContent = p ? `${t("review.details")}: ${p.reason_key ? t(`reason.${p.reason_key}`, p.reason_args) : p.reason}` : "";
   document.querySelectorAll(".tabs button").forEach((b) => {
     b.setAttribute("aria-selected", String(b.dataset.view === state.view));
     b.tabIndex = b.dataset.view === state.view ? 0 : -1;
@@ -188,7 +189,7 @@ function renderDetail() {
     b.type = "button";
     b.setAttribute("aria-pressed", String(c.page === page));
     b.append(img(asset(`/api/page/${c.page - 1}?size=140`), ""), document.createTextNode(`${t("review.page_short", { page: c.page })} · ${Math.round(c.score * 100)}`));
-    b.title = t("review.cand_title", { inliers: c.inliers, score: c.score });
+    b.title = t("review.cand_title", { inliers: c.inliers, score: c.score.toFixed(2) });
     b.onclick = () => { state.candidate = c.page; renderDetail(); };
     strip.append(b);
   }
@@ -236,6 +237,12 @@ async function choose(page, confirmed) {
     }
     render();
   } catch (e) { showError($("export-error"), e); }
+}
+async function findMatches() {
+  state.selected = 0;
+  state.candidate = null;
+  state.data = await api("/api/match", { ocr: $("ocr").checked });
+  render();
 }
 async function guarded(fn, target) {
   try { showError(target, null); await fn(); } catch (e) { showError(target, e); }
@@ -303,9 +310,12 @@ function init() {
   };
   wireDrop($("drop-original"), $("file-original"), (f) => sendFiles(f.slice(0, 1), "/api/original"));
   wireDrop($("drop-rescans"), $("file-rescans"), (f) => sendFiles(f, "/api/rescan"));
-  $("sample").onclick = () => guarded(async () => { $("sample").disabled = true; try { state.data = await api("/api/sample", {}); render(); } finally { $("sample").disabled = false; } }, $("error"));
+  $("sample").onclick = () => guarded(async () => {
+    $("sample").disabled = true;
+    try { state.data = await api("/api/sample", {}); render(); await findMatches(); } finally { if (state.data) render(); else $("sample").disabled = false; }
+  }, $("error"));
   $("clear").onclick = () => guarded(async () => { state.data = await api("/api/clear", {}); render(); }, $("error"));
-  $("go").onclick = () => guarded(async () => { state.selected = 0; state.candidate = null; state.data = await api("/api/match", { ocr: $("ocr").checked }); render(); }, $("error"));
+  $("go").onclick = () => guarded(findMatches, $("error"));
   $("cancel").onclick = () => guarded(async () => { await api("/api/cancel", {}); }, $("error"));
   document.querySelectorAll(".tabs button").forEach((b) => (b.onclick = () => { state.view = b.dataset.view; renderDetail(); }));
   $("use-page").onclick = () => { const v = parseInt($("page-input").value, 10); if (v >= 1) { state.candidate = v; renderDetail(); } };

@@ -194,3 +194,22 @@ def test_download_works_for_non_latin_file_names(client, case):
         assert disposition.isascii() and "attachment" in disposition
         assert unquote(re.search(r"filename\*=UTF-8''([^;]+)", disposition).group(1)).startswith("論文 草稿")
         assert disposition.endswith(ext) or ext in disposition
+
+
+def test_files_given_on_the_command_line_are_matched_before_the_page_opens(case, tmp_path):
+    app = App(port=0)
+    try:
+        app.preload(case["pdf"], case["rescans"][:3])
+        for _ in range(300):
+            state = app.session.state()
+            if state["stage"] != "matching":
+                break
+            time.sleep(0.3)
+        assert state["stage"] == "review"
+        assert state["original"]["pages"] == 40 and len(state["rescans"]) == 3
+        assert len(state["proposals"]) == 3 and "reason_key" in state["proposals"][0]
+        with pytest.raises(InputError, match="cannot read"):
+            app.preload(tmp_path / "missing.pdf", case["rescans"][:1])
+    finally:
+        app.session.close()
+        app.httpd.server_close()

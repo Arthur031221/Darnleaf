@@ -23,9 +23,25 @@ jobs:
           cache: pip
       - name: Fonts for the synthetic booklet
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev,heic]"
       - run: ruff check src scripts tests
       - run: pytest
+
+  portable:
+    # The synthetic booklet draws with DejaVu fonts that only the Linux runner has, so the matcher tests stay there.
+    # Everything else (file handling, export, CLI, locales) must also work on macOS and Windows.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev,heic]"
+      - run: pytest tests/test_cli.py tests/test_export.py tests/test_imaging.py tests/test_preflight.py tests/test_locales.py
 
   e2e:
     runs-on: ubuntu-latest

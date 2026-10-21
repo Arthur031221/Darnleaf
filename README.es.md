@@ -21,7 +21,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf serve
 ```
 
-Pulsa **Probar la muestra incluida** para ver todo el proceso con un cuadernillo sintético de 40 páginas, o suelta tus propios archivos. La [demo de repetición](https://arthur031221.github.io/Darnleaf/) reproduce en el navegador una ejecución real de esa muestra. No acepta archivos.
+Pulsa **Probar la muestra incluida** para ver todo el proceso con un cuadernillo sintético de 40 páginas, o suelta tus propios archivos. La [demo de repetición](https://arthur031221.github.io/Darnleaf/) reproduce en el navegador una ejecución real de esa muestra. No acepta archivos. Con `darnleaf serve original.pdf rescans/*.jpg` los archivos se cargan y la búsqueda de coincidencias empieza sola.
 
 ```console
 $ darnleaf sample job
@@ -74,7 +74,7 @@ Python 3.10 o superior. Solo se ha probado en Linux y todavía no está en PyPI.
 - Hasta 200 páginas en el original, 40 reescaneos, 400 MB para el original y 60 MB por reescaneo.
 - Las páginas con anotaciones no se sustituyen a menos que indiques que se pueden descartar.
 - Dos páginas casi idénticas no se distinguen solo con imágenes, así que pasan a Revisar cuando el segundo candidato puntúa cerca. Una página en blanco no aporta pruebas y siempre es Revisar.
-- La interfaz está traducida a nueve idiomas. El texto con el motivo que da el motor de coincidencias solo está en inglés.
+- La interfaz está traducida a nueve idiomas, incluido el motivo bajo cada coincidencia. La salida de `darnleaf match` está en inglés. Las fotos HEIC del iPhone necesitan `pip install "darnleaf[heic]"`.
 
 Más información en la documentación en inglés: [docs/usage.md](docs/usage.md) y [docs/how-it-works.md](docs/how-it-works.md). Para colaborar, consulta [CONTRIBUTING.md](CONTRIBUTING.md). Licencia MIT, véase [LICENSE](LICENSE).
 

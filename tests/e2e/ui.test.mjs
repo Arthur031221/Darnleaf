@@ -36,9 +36,8 @@ test("every language switches the interface and none shows a raw key", async () 
 });
 
 test("sample job: match, confirm, export and download a valid PDF", async () => {
+  // The sample button loads the sample and starts the match in one press.
   await page.click("#sample");
-  await page.waitFor("!document.querySelector('#go').disabled");
-  await page.click("#go");
   await page.waitFor("!document.querySelector('#review').hidden", 120000);
   assert.equal(await page.eval("document.querySelectorAll('#rescan-list li').length"), 7);
   // The export button stays locked until every non-clear rescan is confirmed.
@@ -76,9 +75,8 @@ test("the review can be finished with the keyboard alone", async () => {
   await page.eval(`fetch('/api/clear', { method: 'POST', body: '{}', headers: { 'X-Darnleaf-Token': document.querySelector('meta[name=darnleaf-token]').content } })`);
   await page.goto(server.url);
   await page.waitFor("document.querySelector('#review').hidden");
+  // The sample button loads the sample and starts the match in one press.
   await page.click("#sample");
-  await page.waitFor("!document.querySelector('#go').disabled");
-  await page.click("#go");
   await page.waitFor("!document.querySelector('#review').hidden", 120000);
   assert.ok(await page.eval("document.querySelectorAll('#rescan-list .badge.check').length") > 0);
   const selected = () => page.eval("[...document.querySelectorAll('#rescan-list button')].findIndex((b) => b.getAttribute('aria-current') === 'true')");
@@ -144,4 +142,18 @@ test("uploading files through the pickers works", { skip: !process.env.DARNLEAF_
   await page.files("#file-rescans", [1, 2, 3].map((n) => join(dir, "rescans", `rescan-0${n}.jpg`)));
   await page.waitFor("document.querySelector('#rescans-info').textContent.includes('3')");
   assert.equal(await page.eval("document.querySelector('#go').disabled"), false);
+});
+
+test("the reason under a match follows the interface language", async () => {
+  await page.goto(server.url);
+  await page.waitFor("!document.querySelector('#review').hidden", 120000);
+  const setLang = (code) => page.eval(`(() => { const s = document.querySelector('#lang'); s.value = ${JSON.stringify(code)}; s.dispatchEvent(new Event('change')); })()`);
+  await setLang("de");
+  await page.waitFor("document.documentElement.lang === 'de' && document.querySelector('#d-reason').textContent.length > 0");
+  const [shown, plain] = await page.eval("[document.querySelector('#d-reason').textContent, state.data.proposals[state.selected].reason]");
+  assert.ok(plain.length > 0);
+  assert.ok(!shown.includes(plain), shown);
+  await setLang("en");
+  await page.waitFor("document.documentElement.lang === 'en'");
+  assert.ok((await page.eval("document.querySelector('#d-reason').textContent")).includes(plain));
 });

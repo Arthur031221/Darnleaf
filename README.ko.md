@@ -21,7 +21,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf serve
 ```
 
-'기본 제공 샘플 써 보기'를 누르면 합성한 40쪽 책자로 전체 흐름을 볼 수 있고, 직접 파일을 넣을 수도 있습니다. [리플레이 데모](https://arthur031221.github.io/Darnleaf/)는 그 샘플의 실제 실행 기록을 브라우저에서 재생하며, 파일은 받지 않습니다.
+'기본 제공 샘플 써 보기'를 누르면 합성한 40쪽 책자로 전체 흐름을 볼 수 있고, 직접 파일을 넣을 수도 있습니다. [리플레이 데모](https://arthur031221.github.io/Darnleaf/)는 그 샘플의 실제 실행 기록을 브라우저에서 재생하며, 파일은 받지 않습니다. `darnleaf serve original.pdf rescans/*.jpg`를 쓰면 파일을 불러오고 일치 찾기까지 바로 시작합니다.
 
 ```console
 $ darnleaf sample job
@@ -74,7 +74,7 @@ Python 3.10 이상이 필요합니다. 지금까지 Linux에서만 테스트했�
 - 원본은 최대 200쪽, 재스캔은 최대 40장, 원본 파일은 400 MB, 재스캔은 장당 60 MB까지입니다.
 - 주석이 있는 페이지는 주석을 버려도 된다고 지정하지 않으면 바꾸지 않습니다.
 - 거의 같은 두 페이지는 이미지만으로 구분할 수 없어서 2위 점수가 가까우면 '확인 필요'가 됩니다. 빈 페이지에는 단서가 없어 항상 '확인 필요'입니다.
-- 화면은 9개 언어로 번역되어 있지만 일치 엔진이 내놓는 이유 문장은 영어뿐입니다.
+- 화면은 9개 언어로 번역되어 있고 각 일치 아래의 이유 문장도 같습니다. `darnleaf match` 출력은 영어입니다. iPhone의 HEIC 사진은 `pip install "darnleaf[heic]"`가 필요합니다.
 
 자세한 내용은 영어 문서 [docs/usage.md](docs/usage.md)와 [docs/how-it-works.md](docs/how-it-works.md)를 보세요. 기여 방법은 [CONTRIBUTING.md](CONTRIBUTING.md), 라이선스는 MIT이며 [LICENSE](LICENSE)에 있습니다.
 

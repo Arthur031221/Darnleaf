@@ -17,11 +17,8 @@ const settle = (ms = 600) => sleep(ms);
 
 await page.goto(server.url);
 await frame(6);
+// One press loads the sample and starts the match. Progress is real; sample it while the matcher works.
 await page.click("#sample");
-await page.waitFor("!document.querySelector('#go').disabled");
-await settle(); await frame(6);
-await page.click("#go");
-// Progress is real; sample it while the matcher works.
 for (let i = 0; i < 60 && await page.eval("document.querySelector('#review').hidden"); i++) { await frame(1); await sleep(250); }
 await page.waitFor("!document.querySelector('#review').hidden", 120000);
 await page.eval("document.querySelector('#review').scrollIntoView()");

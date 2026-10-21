@@ -21,7 +21,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf serve
 ```
 
-点「试用内置示例」，就能在一份合成的 40 页小册子上走完整个流程，也可以放入你自己的文件。[回放演示](https://arthur031221.github.io/Darnleaf/)会在浏览器里回放该示例的一次真实运行，不接收文件。
+点「试用内置示例」，就能在一份合成的 40 页小册子上走完整个流程，也可以放入你自己的文件。[回放演示](https://arthur031221.github.io/Darnleaf/)会在浏览器里回放该示例的一次真实运行，不接收文件。 用 `darnleaf serve original.pdf rescans/*.jpg` 会直接载入文件并开始匹配。
 
 ```console
 $ darnleaf sample job
@@ -74,7 +74,7 @@ darnleaf --version
 - 原稿最多 200 页，重扫件最多 40 张，原稿上限 400 MB，每张重扫件上限 60 MB。
 - 带批注的页面不会被替换，除非你同意丢弃批注。
 - 两个几乎相同的页面无法只靠图像区分，所以第二高分很接近时会标为「需检查」。空白页没有任何线索，一律是「需检查」。
-- 界面有九种语言，但匹配引擎给出的原因文字只有英文。
+- 界面有九种语言，每条匹配下方的原因文字也一样。`darnleaf match` 的输出是英文。iPhone 的 HEIC 照片需要 `pip install "darnleaf[heic]"`。
 
 更多内容见英文文档：[docs/usage.md](docs/usage.md) 和 [docs/how-it-works.md](docs/how-it-works.md)。贡献方式见 [CONTRIBUTING.md](CONTRIBUTING.md)。MIT 许可，见 [LICENSE](LICENSE)。
 

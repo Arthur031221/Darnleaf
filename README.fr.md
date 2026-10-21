@@ -21,7 +21,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf serve
 ```
 
-Cliquez sur **Essayer l'exemple fourni** pour parcourir tout le flux avec un livret synthétique de 40 pages, ou déposez vos propres fichiers. La [démo en rediffusion](https://arthur031221.github.io/Darnleaf/) rejoue dans le navigateur une exécution réelle de cet exemple. Elle n'accepte pas de fichiers.
+Cliquez sur **Essayer l'exemple fourni** pour parcourir tout le flux avec un livret synthétique de 40 pages, ou déposez vos propres fichiers. La [démo en rediffusion](https://arthur031221.github.io/Darnleaf/) rejoue dans le navigateur une exécution réelle de cet exemple. Elle n'accepte pas de fichiers. Avec `darnleaf serve original.pdf rescans/*.jpg`, les fichiers sont chargés et la recherche de correspondances démarre seule.
 
 ```console
 $ darnleaf sample job
@@ -74,7 +74,7 @@ Python 3.10 ou plus récent. Testé uniquement sous Linux pour l'instant, et pas
 - Jusqu'à 200 pages dans l'original, 40 nouvelles numérisations, 400 Mo pour l'original et 60 Mo par numérisation.
 - Les pages avec annotations ne sont pas remplacées, sauf si vous acceptez de perdre les annotations.
 - Deux pages presque identiques ne se distinguent pas par l'image, elles passent donc en À vérifier quand le deuxième candidat obtient un score proche. Une page blanche ne donne aucun indice et reste toujours À vérifier.
-- L'interface est traduite en neuf langues. Le texte de la raison donnée par le moteur n'existe qu'en anglais.
+- L'interface est traduite en neuf langues, y compris la raison affichée sous chaque correspondance. La sortie de `darnleaf match` est en anglais. Les photos HEIC de l'iPhone demandent `pip install "darnleaf[heic]"`.
 
 Plus de détails dans la documentation en anglais : [docs/usage.md](docs/usage.md) et [docs/how-it-works.md](docs/how-it-works.md). Pour contribuer, voir [CONTRIBUTING.md](CONTRIBUTING.md). Licence MIT, voir [LICENSE](LICENSE).
 

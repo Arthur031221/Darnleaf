@@ -5,12 +5,15 @@
 ```sh
 darnleaf serve            # http://127.0.0.1:8765, opens your browser
 darnleaf serve --port 9000 --no-open
+darnleaf serve original.pdf rescans/*.jpg   # load the files and start matching, so the browser opens on the review
 ```
+
+With files on the command line the server reads them before it starts listening, so a bad path or an unreadable PDF is reported in the terminal and nothing opens. Give the original and at least one rescan, or neither. `--ocr` is accepted here too.
 
 `--host` only accepts loopback addresses (127.0.0.0/8, `::1`, `localhost`). Anything else is refused.
 
-1. Drop the damaged PDF on the left box and the fresh rescans (photos, images or PDFs, any order) on the right box.
-2. Press **Find matches**. Each rescan gets a suggested page and one of three labels.
+1. Drop the damaged PDF on the left box and the fresh rescans (photos, images or PDFs, any order) on the right box. PNG, JPEG, TIFF, BMP and WebP work out of the box. iPhone HEIC photos need `pip install "darnleaf[heic]"`, or export them as JPEG first.
+2. Press **Find matches**. Each rescan gets a suggested page and one of three labels. **Try the bundled sample** loads a synthetic booklet and does this step for you.
 3. Click a rescan to see why. Three views: side by side, an overlay (orange is ink only the old page has, blue is ink only the rescan has) and the matched features. Other plausible pages are listed under the view, and you can type any page number yourself.
 4. Confirm every rescan labelled **Check**. The export button stays locked until you do. Confirming jumps to the next rescan that still needs a check. Keys: `j` and `k` move between rescans (the arrow keys too, while the list has focus), `1` to `8` pick a candidate page, `c` confirms.
 5. Press **Write repaired PDF**. Download the PDF and the receipt.
@@ -46,7 +49,7 @@ darnleaf sample demo/                                # a synthetic damaged bookl
 
 ```json
 {
-  "tool": "darnleaf 0.1.0",
+  "tool": "darnleaf 0.3.0",
   "original": { "file": "original.pdf", "sha256": "...", "pages": 40 },
   "output":   { "file": "repaired.pdf", "sha256": "...", "pages": 40 },
   "replaced": [

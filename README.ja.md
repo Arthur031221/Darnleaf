@@ -21,7 +21,7 @@ pipx install git+https://github.com/Arthur031221/Darnleaf
 darnleaf serve
 ```
 
-「同梱のサンプルを試す」を押すと、合成した 40 ページの冊子で一連の流れを確かめられます。自分のファイルを入れることもできます。[リプレイデモ](https://arthur031221.github.io/Darnleaf/)では、そのサンプルを実際に動かした記録をブラウザで再生します。ファイルは受け付けません。
+「同梱のサンプルを試す」を押すと、合成した 40 ページの冊子で一連の流れを確かめられます。自分のファイルを入れることもできます。[リプレイデモ](https://arthur031221.github.io/Darnleaf/)では、そのサンプルを実際に動かした記録をブラウザで再生します。ファイルは受け付けません。 `darnleaf serve original.pdf rescans/*.jpg` なら、ファイルを読み込んで照合まで自動で始めます。
 
 ```console
 $ darnleaf sample job
@@ -74,7 +74,7 @@ Python 3.10 以上が必要です。動作を確認したのは今のところ L
 - 元の PDF は最大 200 ページ、撮り直しは最大 40 枚、元ファイルは 400 MB まで、撮り直しは 1 枚 60 MB までです。
 - 注釈のあるページは、注釈を捨ててよいと指定しない限り置き換えません。
 - ほぼ同じ 2 ページは画像だけでは区別できないため、2 位の得点が近いと「要確認」になります。白紙ページには手がかりがなく、常に「要確認」です。
-- 画面は 9 言語に翻訳されていますが、照合エンジンの理由の文は英語のみです。
+- 画面は 9 言語に翻訳されており、各照合の下に出る理由も同じです。`darnleaf match` の出力は英語です。iPhone の HEIC 写真には `pip install "darnleaf[heic]"` が必要です。
 
 詳しくは英語のドキュメント [docs/usage.md](docs/usage.md) と [docs/how-it-works.md](docs/how-it-works.md) を参照してください。参加方法は [CONTRIBUTING.md](CONTRIBUTING.md)、ライセンスは MIT で [LICENSE](LICENSE) にあります。
 

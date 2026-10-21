@@ -48,3 +48,15 @@ def test_bad_assign_is_rejected(tmp_path, capsys):
 def test_serve_refuses_a_non_loopback_host(capsys):
     assert main(["serve", "--host", "0.0.0.0", "--no-open"]) == 2
     assert "refusing to listen" in capsys.readouterr().err
+
+
+def test_serve_needs_the_original_and_a_rescan_together(tmp_path, capsys):
+    original, rescans = make(tmp_path, capsys)
+    assert main(["serve", "--port", "0", "--no-open", original]) == 2
+    assert "at least one rescan" in capsys.readouterr().err
+
+
+def test_serve_with_an_unreadable_file_fails_before_it_listens(tmp_path, capsys):
+    original, rescans = make(tmp_path, capsys)
+    assert main(["serve", "--port", "0", "--no-open", original, str(tmp_path / "nope.jpg")]) == 2
+    assert "darnleaf:" in capsys.readouterr().err

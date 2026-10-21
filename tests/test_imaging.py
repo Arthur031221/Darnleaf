@@ -54,3 +54,19 @@ def test_exif_orientation_is_honoured(tmp_path):
     f = tmp_path / "t.jpg"
     img.save(f, exif=exif)
     assert imaging.expand_sources([f])[0].load().size == (100, 200)
+
+
+def test_heic_photo_loads_when_the_extra_is_installed(tmp_path):
+    pytest.importorskip("pillow_heif")
+    f = tmp_path / "IMG_0001.HEIC"
+    Image.new("RGB", (120, 160), "white").save(f, format="HEIF")
+    (source,) = imaging.expand_sources([f])
+    assert source.load().size == (120, 160)
+
+
+def test_heic_without_the_extra_says_how_to_fix_it(tmp_path, monkeypatch):
+    monkeypatch.setattr(imaging, "IMAGE_SUFFIXES", imaging.IMAGE_SUFFIXES - imaging.HEIC_SUFFIXES)
+    f = tmp_path / "IMG_0001.heic"
+    f.write_bytes(b"x")
+    with pytest.raises(InputError, match=r"darnleaf\[heic\]"):
+        imaging.expand_sources([f])

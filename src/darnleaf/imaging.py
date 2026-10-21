@@ -17,6 +17,14 @@ Image.MAX_IMAGE_PIXELS = limits.MAX_IMAGE_PIXELS
 # PDFium is not thread safe. Every call into it, from the match thread or from a request, takes this lock.
 PDFIUM = threading.RLock()
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp"}
+HEIC_SUFFIXES = {".heic", ".heif"}
+try:  # Phone photos. Optional: pip install "darnleaf[heic]"
+    from pillow_heif import register_heif_opener
+
+    register_heif_opener()
+    IMAGE_SUFFIXES |= HEIC_SUFFIXES
+except ImportError:
+    pass
 
 
 class InputError(ValueError):
@@ -83,6 +91,8 @@ def expand_sources(paths: list[Path]) -> list[Source]:
             out.extend(Source(f"{path.name} p.{i + 1}", path, i) for i in range(count))
         elif suffix in IMAGE_SUFFIXES:
             out.append(Source(path.name, path))
+        elif suffix in HEIC_SUFFIXES:
+            raise InputError(f"{path.name}: HEIC photos need the heic extra (pip install \"darnleaf[heic]\"), or export them as JPEG first")
         else:
             raise InputError(f"{path.name}: use PNG, JPEG, TIFF, BMP, WebP or PDF files")
     if len(out) > limits.MAX_REPLACEMENTS:

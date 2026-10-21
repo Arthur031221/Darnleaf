@@ -55,6 +55,19 @@ class Candidate:
         }
 
 
+# The English wording of every reason. The web UI translates by key, so each key has a matching
+# "reason.<key>" entry in every locale file, with the same {placeholders}.
+REASONS = {
+    "no_match": "no original page shares enough features or text with this rescan",
+    "clear": "{inliers} consistent features, margin {margin}",
+    "weak": "weak evidence: {inliers} consistent features",
+    "close": "page {page} scores almost as high (margin {margin})",
+    "contested": "another rescan also ranks page {page} first",
+    "blank": "blank pages carry no evidence: confirm the position yourself",
+    "blank_none": "this rescan is blank and the original has no blank page",
+}
+
+
 @dataclass
 class Proposal:
     """The matcher's answer for one rescan. `status` is clear, check or none."""
@@ -62,8 +75,13 @@ class Proposal:
     rescan: int
     page: int | None
     status: str
-    reason: str
+    key: str
+    args: dict
     candidates: list[Candidate]
+
+    @property
+    def reason(self) -> str:
+        return REASONS[self.key].format(**self.args)
 
     def public(self) -> dict:
         return {
@@ -71,6 +89,8 @@ class Proposal:
             "page": None if self.page is None else self.page + 1,
             "status": self.status,
             "reason": self.reason,
+            "reason_key": self.key,
+            "reason_args": self.args,
             "candidates": [c.public() for c in self.candidates],
         }
 
@@ -203,21 +223,20 @@ def resolve(rescans: list[Signature], pages: list[Signature], all_candidates: li
             continue
         page = chosen.get(r)
         if page is None:
-            reason = "no original page shares enough features or text with this rescan"
-            proposals.append(Proposal(r, None, "none", reason, found[:4]))
+            proposals.append(Proposal(r, None, "none", "no_match", {}, found[:4]))
             continue
         top = next(c for c in found if c.page == page)
         rivals = [c for c in found if c.page != page]
         margin = top.score - (rivals[0].score if rivals else 0.0)
         contested = [o for o in range(len(rescans)) if o != r and _best(all_candidates[o]) == page]
-        status, reason = "clear", f"{top.inliers} consistent features, margin {margin:.2f}"
+        status, key, args = "clear", "clear", {"inliers": top.inliers, "margin": f"{margin:.2f}"}
         if top.score < CLEAR_SCORE:
-            status, reason = "check", f"weak evidence: {top.inliers} consistent features"
+            status, key, args = "check", "weak", {"inliers": top.inliers}
         elif margin < CLEAR_MARGIN:
-            status, reason = "check", f"page {rivals[0].page + 1} scores almost as high (margin {margin:.2f})"
+            status, key, args = "check", "close", {"page": rivals[0].page + 1, "margin": f"{margin:.2f}"}
         elif contested:
-            status, reason = "check", f"another rescan also ranks page {page + 1} first"
-        proposals.append(Proposal(r, page, status, reason, [top] + rivals[:3]))
+            status, key, args = "check", "contested", {"page": page + 1}
+        proposals.append(Proposal(r, page, status, key, args, [top] + rivals[:3]))
     return proposals
 
 
@@ -227,7 +246,6 @@ def _best(found: list[Candidate]) -> int | None:
 
 def _blank_proposal(r: int, found: list[Candidate], chosen: dict[int, int]) -> Proposal:
     if not found:
-        return Proposal(r, None, "none", "this rescan is blank and the original has no blank page", [])
-    reason = "blank pages carry no evidence: confirm the position yourself"
+        return Proposal(r, None, "none", "blank_none", {}, [])
     page = found[0].page if len(found) == 1 else None
-    return Proposal(r, page, "check", reason, found[:4])
+    return Proposal(r, page, "check", "blank", {}, found[:4])
