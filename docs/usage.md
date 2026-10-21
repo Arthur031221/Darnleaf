@@ -1,0 +1,76 @@
+# Using Darnleaf
+
+## The review screen
+
+```sh
+darnleaf serve            # http://127.0.0.1:8765, opens your browser
+darnleaf serve --port 9000 --no-open
+```
+
+`--host` only accepts loopback addresses (127.0.0.0/8, `::1`, `localhost`). Anything else is refused.
+
+1. Drop the damaged PDF on the left box and the fresh rescans (photos, images or PDFs, any order) on the right box.
+2. Press **Find matches**. Each rescan gets a suggested page and one of three labels.
+3. Click a rescan to see why. Three views: side by side, an overlay (orange is ink only the old page has, blue is ink only the rescan has) and the matched features. Other plausible pages are listed under the view, and you can type any page number yourself.
+4. Confirm every rescan labelled **Check**. The export button stays locked until you do.
+5. Press **Write repaired PDF**. Download the PDF and the receipt.
+
+| Label | What it means | Needs your confirmation |
+| --- | --- | --- |
+| Clear | Plenty of consistent features, a wide margin over the next page, and no other rescan claims the same page. | No |
+| Check | A match exists but it is weak, close to another page, contested, or the page is blank. | Yes |
+| None | No page shares enough features with this rescan. | Not used unless you assign a page by hand |
+
+Repeated forms and blank pages are always **Check**. Two copies of the same form differ in a handful of digits and a blank page carries no evidence, so Darnleaf will not guess between them.
+
+## Placement
+
+- **Align to the original page** (default) warps the rescan onto the page's frame, so margins and size match the neighbours. If the alignment cannot be computed it falls back to fit and the receipt says `"placement": "fit"`.
+- **Fit inside the page** keeps the rescan unwarped and pads it with white to the page's aspect ratio.
+
+Pages you did not replace are the original page objects, saved without re-rendering. Annotations on a replaced page would be lost, so export refuses until you tick "drop annotations" (CLI: `--drop-annotations`).
+
+## Command line
+
+```sh
+darnleaf match original.pdf rescans/*.jpg            # table of suggestions
+darnleaf match original.pdf rescans/*.jpg --json     # the same, with the top candidates and their scores
+darnleaf apply original.pdf rescans/*.jpg -o fixed.pdf
+darnleaf apply original.pdf a.jpg b.jpg -o fixed.pdf --assign a.jpg=12 --accept-check
+darnleaf sample demo/                                # a synthetic damaged booklet to try things on
+```
+
+`apply` only uses matches labelled Clear. `--accept-check` adds the Check ones and `--assign FILE=PAGE` forces a page (1-based). Each choice is written into the receipt as `confirmed_by`. The receipt lands next to the output as `fixed.receipt.json`. Exit code 2 means the input was refused or nothing was safe to replace.
+
+## The receipt
+
+```json
+{
+  "tool": "darnleaf 0.1.0",
+  "original": { "file": "original.pdf", "sha256": "...", "pages": 40 },
+  "output":   { "file": "repaired.pdf", "sha256": "...", "pages": 40 },
+  "replaced": [
+    {
+      "page": 11,
+      "replacement": "rescan-02.jpg",
+      "replacement_sha256": "...",
+      "quarter_turns_clockwise": 0,
+      "placement": "aligned",
+      "evidence": { "page": 11, "score": 0.74, "inliers": 205, "agreement": 0.97, "quarter_turns": 0, "angle": 1.1, "scale": 1.02 },
+      "confirmed_by": "matcher: clear"
+    }
+  ],
+  "untouched_pages": 34
+}
+```
+
+## Reading text as a second signal
+
+Rescans of text pages usually match on visual features alone. If you also want word overlap as a second signal, install an OCR engine and tick the box (CLI: `--ocr`):
+
+```sh
+pipx install "darnleaf[ocr] @ git+https://github.com/Arthur031221/Darnleaf"   # RapidOCR, or
+sudo apt install tesseract-ocr                                                # any tesseract on PATH
+```
+
+Text can raise or lower a score. It cannot create a match that the images do not support.
