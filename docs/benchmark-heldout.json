@@ -1,0 +1,78 @@
+{
+  "rescans": 90,
+  "by_kind": {
+    "text": {
+      "n": 43,
+      "top1": 1.0,
+      "listed": 1.0,
+      "clear": 42,
+      "check": 1,
+      "none": 0,
+      "clear_wrong": 0,
+      "turn_ok": 1.0
+    },
+    "figure": {
+      "n": 3,
+      "top1": 1.0,
+      "listed": 1.0,
+      "clear": 3,
+      "check": 0,
+      "none": 0,
+      "clear_wrong": 0,
+      "turn_ok": 1.0
+    },
+    "repeated form": {
+      "n": 24,
+      "top1": 0.875,
+      "listed": 1.0,
+      "clear": 0,
+      "check": 24,
+      "none": 0,
+      "clear_wrong": 0,
+      "turn_ok": 1.0
+    },
+    "blank": {
+      "n": 10,
+      "top1": 0.9,
+      "listed": 0.9,
+      "clear": 0,
+      "check": 9,
+      "none": 1,
+      "clear_wrong": 0,
+      "turn_ok": 1.0
+    },
+    "not in booklet": {
+      "n": 10,
+      "top1": 1.0,
+      "listed": 1.0,
+      "clear": 0,
+      "check": 0,
+      "none": 10,
+      "clear_wrong": 0,
+      "turn_ok": 1.0
+    },
+    "all": {
+      "n": 90,
+      "top1": 0.956,
+      "listed": 0.989,
+      "clear": 45,
+      "check": 34,
+      "none": 11,
+      "clear_wrong": 0,
+      "turn_ok": 1.0
+    }
+  },
+  "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110
+  ],
+  "pages": 90
+}

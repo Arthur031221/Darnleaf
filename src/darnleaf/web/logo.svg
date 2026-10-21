@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Darnleaf">
+  <rect width="64" height="64" rx="14" fill="#1b1a17"/>
+  <path d="M18 12h22l8 8v32a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2V14a2 2 0 0 1 2-2z" fill="#f6f1e7"/>
+  <path d="M40 12v8h8z" fill="#d8cfbd"/>
+  <path d="M22 28h20M22 36h20M22 44h12" stroke="#2c4a6e" stroke-width="2.4" stroke-linecap="round" opacity=".35"/>
+  <path d="M24 18c9 4 14 12 14 24" fill="none" stroke="#d9482b" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 4.5"/>
+  <circle cx="24" cy="18" r="2.6" fill="#d9482b"/>
+</svg>

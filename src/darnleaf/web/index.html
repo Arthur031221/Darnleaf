@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="darnleaf-token" content="__TOKEN__">
+<title>Darnleaf</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><img src="logo.svg" alt="" width="34" height="34"><span>Darnleaf</span></a>
+  <p class="tag" data-i18n="app.tagline"></p>
+  <div class="tools">
+    <label class="sr" for="lang" data-i18n="ui.language"></label>
+    <select id="lang" aria-label="Language"></select>
+    <button id="theme" class="ghost" type="button"></button>
+  </div>
+</header>
+
+<p id="demo-banner" class="demo" hidden data-i18n="demo.banner"></p>
+<main>
+  <section id="load" class="panel" aria-labelledby="h-load">
+    <h2 id="h-load"><span class="n">1</span><span data-i18n="load.title"></span></h2>
+    <div class="drops">
+      <div class="drop" id="drop-original" tabindex="0" role="button">
+        <strong data-i18n="load.original"></strong>
+        <span data-i18n="load.original_hint"></span>
+        <em id="original-info"></em>
+        <input type="file" id="file-original" accept="application/pdf,.pdf" hidden>
+      </div>
+      <div class="drop" id="drop-rescans" tabindex="0" role="button">
+        <strong data-i18n="load.rescans"></strong>
+        <span data-i18n="load.rescans_hint"></span>
+        <em id="rescans-info"></em>
+        <input type="file" id="file-rescans" accept="image/*,application/pdf,.pdf,.tif,.tiff" multiple hidden>
+      </div>
+    </div>
+    <ul id="notes" class="notes"></ul>
+    <div class="row">
+      <button id="go" class="primary" type="button" data-i18n="load.go" disabled></button>
+      <button id="sample" class="ghost" type="button" data-i18n="load.sample"></button>
+      <button id="clear" class="ghost" type="button" data-i18n="load.clear" hidden></button>
+      <label class="check" id="ocr-wrap" hidden><input type="checkbox" id="ocr"><span data-i18n="load.ocr"></span></label>
+    </div>
+    <p class="private" data-i18n="load.private"></p>
+    <div id="progress" hidden>
+      <progress id="bar" max="100" value="0"></progress>
+      <span id="progress-text"></span>
+      <button id="cancel" class="ghost" type="button" data-i18n="match.cancel"></button>
+    </div>
+    <p id="error" class="error" role="alert" hidden></p>
+  </section>
+
+  <section id="review" class="panel" hidden aria-labelledby="h-review">
+    <h2 id="h-review"><span class="n">2</span><span data-i18n="review.title"></span></h2>
+    <p class="hint" data-i18n="review.hint"></p>
+    <div class="split">
+      <ol id="rescan-list" class="rlist"></ol>
+      <div id="detail" class="detail">
+        <div class="detail-head">
+          <h3 id="d-title"></h3>
+          <span id="d-badge" class="badge"></span>
+        </div>
+        <p id="d-reason" class="reason"></p>
+        <div class="tabs" role="tablist">
+          <button type="button" role="tab" data-view="side" data-i18n="view.side"></button>
+          <button type="button" role="tab" data-view="overlay" data-i18n="view.overlay"></button>
+          <button type="button" role="tab" data-view="features" data-i18n="view.features"></button>
+        </div>
+        <div id="stage" class="stage"></div>
+        <div class="cands">
+          <span class="lbl" data-i18n="review.candidates"></span>
+          <div id="cands" class="strip"></div>
+        </div>
+        <div class="row">
+          <label for="page-input" data-i18n="review.page"></label>
+          <input id="page-input" type="number" min="1" inputmode="numeric">
+          <button id="use-page" class="ghost" type="button" data-i18n="review.use"></button>
+          <button id="confirm" class="primary" type="button" data-i18n="review.confirm"></button>
+          <button id="unassign" class="ghost" type="button" data-i18n="review.unassign"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="export" class="panel" hidden aria-labelledby="h-export">
+    <h2 id="h-export"><span class="n">3</span><span data-i18n="export.title"></span></h2>
+    <p id="export-summary"></p>
+    <div class="row">
+      <label for="mode" data-i18n="export.mode"></label>
+      <select id="mode"><option value="align" data-i18n="export.align"></option><option value="fit" data-i18n="export.fit"></option></select>
+      <label class="check" id="drop-wrap" hidden><input type="checkbox" id="drop"><span data-i18n="export.drop"></span></label>
+      <button id="do-export" class="primary" type="button" data-i18n="export.button"></button>
+    </div>
+    <div id="done" hidden>
+      <p id="done-text"></p>
+      <a id="dl-pdf" class="btn" href="/api/download/pdf" data-i18n="export.pdf"></a>
+      <a id="dl-receipt" class="btn" href="/api/download/receipt" data-i18n="export.receipt"></a>
+    </div>
+    <p id="export-error" class="error" role="alert" hidden></p>
+  </section>
+</main>
+<footer><span data-i18n="app.footer"></span> <a href="https://github.com/Arthur031221/Darnleaf">GitHub</a></footer>
+<script src="app.js"></script>
+</body>
+</html>
