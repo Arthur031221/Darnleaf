@@ -29,6 +29,15 @@ await page.eval("document.querySelector('[data-view=overlay]').click()");
 await settle(2500); await frame(10);
 await page.eval("document.querySelector('[data-view=features]').click()");
 await settle(2500); await frame(8);
+// The closer look: both pages at full size, scrolled together.
+await page.eval("document.querySelector('[data-view=side]').click()");
+await settle(1500);
+await page.click("#zoom-open");
+await settle(1800); await frame(8);
+await page.eval("document.querySelectorAll('.zoom-pane').forEach((p) => p.scrollTo({ top: 500 }))");
+await settle(900); await frame(8);
+await page.click("#zoom-close");
+await settle(400);
 const count = await page.eval("document.querySelectorAll('#rescan-list li').length");
 for (let i = 0; i < count; i++) {
   await page.eval(`document.querySelectorAll('#rescan-list li button')[${i}].click()`);

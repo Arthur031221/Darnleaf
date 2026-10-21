@@ -113,6 +113,46 @@ test("the review can be finished with the keyboard alone", async () => {
   assert.equal(await page.eval("document.querySelectorAll('#rescan-list .badge.check').length"), 0);
 });
 
+test("the file panel folds to one line during review and opens again on request", async () => {
+  await page.goto(server.url);
+  await page.waitFor("!document.querySelector('#review').hidden");
+  assert.equal(await page.eval("document.querySelector('#load').classList.contains('compact')"), true);
+  assert.equal(await page.eval("document.querySelector('#drop-original').offsetParent === null"), true);
+  assert.match(await page.eval("document.querySelector('#summary-text').textContent"), /sample-booklet\.pdf, 40 pages, 7 rescans/);
+  await page.click("#load-edit");
+  assert.equal(await page.eval("document.querySelector('#load').classList.contains('compact')"), false);
+  assert.equal(await page.eval("document.querySelector('#drop-original').offsetParent !== null"), true);
+  assert.equal(await page.eval("document.querySelector('#load-summary').hidden"), true);
+});
+
+test("zoom opens a closer look at both pages that scroll together, and Escape closes it", async () => {
+  await page.goto(server.url);
+  await page.waitFor("!document.querySelector('#review').hidden");
+  await page.waitFor("document.querySelector('#stage img')");
+  await press("z");
+  await page.waitFor("document.querySelector('#zoom').open");
+  assert.equal(await page.eval("document.querySelectorAll('#zoom-body .zoom-pane').length"), 2);
+  await page.waitFor("[...document.querySelectorAll('#zoom-body img')].every((i) => i.complete && i.naturalWidth > 0)");
+  assert.equal(await page.eval("document.querySelector('#zoom-body img').naturalWidth > document.querySelector('#stage img').clientWidth"), true);
+  await page.eval("document.querySelector('.zoom-pane').scrollTop = 200");
+  await page.waitFor("document.querySelectorAll('.zoom-pane')[1].scrollTop > 0");
+  // j must not move the selection behind the dialog.
+  await press("j");
+  assert.equal(await page.eval("document.querySelector('#rescan-list [aria-current=true] .name').textContent"), "rescan-01.jpg");
+  await page.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+  await page.send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+  await page.waitFor("!document.querySelector('#zoom').open");
+  // The evidence views zoom as a single picture, and the Zoom button is not mistaken for a tab.
+  await page.eval("document.querySelector('[data-view=overlay]').click()");
+  await page.waitFor("document.querySelector('#stage img')");
+  await page.click("#zoom-open");
+  await page.waitFor("document.querySelector('#zoom').open");
+  assert.equal(await page.eval("document.querySelectorAll('#zoom-body .zoom-pane').length"), 1);
+  assert.equal(await page.eval("document.querySelectorAll('.tabs [aria-selected=true]').length"), 1);
+  await page.click("#zoom-close");
+  await page.eval("document.querySelector('[data-view=side]').click()");
+});
+
 test("the review screen does not scroll sideways on a phone", async () => {
   await page.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 800, deviceScaleFactor: 1, mobile: false });
   try {

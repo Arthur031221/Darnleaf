@@ -9,7 +9,7 @@ const STATIC = window.DARNLEAF_STATIC || null;
 const asset = (path) => (STATIC ? STATIC.asset(path) : path);
 const TOKEN = document.querySelector('meta[name="darnleaf-token"]').content;
 const $ = (id) => document.getElementById(id);
-const state = { data: null, strings: {}, fallback: {}, selected: 0, view: "side", candidate: null, timer: null, stamp: 0 };
+const state = { data: null, strings: {}, fallback: {}, selected: 0, view: "side", candidate: null, timer: null, stamp: 0, loadOpen: false, busy: false };
 
 // ---------- i18n ----------
 function t(key, vars) {
@@ -92,7 +92,17 @@ function render() {
   if (d.stage === "failed") showError($("error"), new Error(d.error)); else if (!busy) showError($("error"), null);
   $("review").hidden = !["review"].includes(d.stage) && !d.proposals.length;
   $("export").hidden = $("review").hidden;
-  if (!$("review").hidden) { renderList(); renderDetail(); renderExport(); }
+  // Once there is something to review, the file picker folds into one line so the pages get the screen.
+  const reviewing = !$("review").hidden;
+  $("load").classList.toggle("compact", reviewing && !busy && !state.loadOpen);
+  $("load-summary").hidden = !(reviewing && !busy && !state.loadOpen && info);
+  if (info) $("summary-text").textContent = t("load.summary", { name: info.name, pages: info.pages, n: d.rescans.length });
+  if (reviewing) { renderList(); renderDetail(); renderExport(); }
+  if (state.busy && !busy && reviewing) {
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    requestAnimationFrame(() => $("review").scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" }));
+  }
+  state.busy = busy;
   clearTimeout(state.timer);
   if (busy) state.timer = setTimeout(refresh, 450);
 }
@@ -165,6 +175,47 @@ function shownPage() {
   return p && p.candidates.length ? p.candidates[0].page : null;
 }
 
+// What the closer look shows for the current pair: both pages for side by side, one picture for the evidence views.
+function zoomSources(i, page) {
+  if (state.view === "side") {
+    return [
+      { src: asset(`/api/page/${page - 1}?size=1600`), cap: t("view.original", { page }) },
+      { src: asset(`/api/rescan/${i}?size=1600&turns=${turnsFor(i, page)}`), cap: t("view.rescan") },
+    ];
+  }
+  const kind = state.view === "overlay" ? "overlay" : "features";
+  return [{ src: asset(`/api/evidence/${i}/${page - 1}/${kind}`), cap: t(`view.${kind}_caption`) }];
+}
+
+function openZoom() {
+  const page = shownPage();
+  if (page === null || !state.data.rescans[state.selected]) return;
+  const body = $("zoom-body"), panes = [];
+  body.replaceChildren();
+  $("zoom-title").textContent = state.data.rescans[state.selected].label;
+  for (const { src, cap } of zoomSources(state.selected, page)) {
+    const pane = Object.assign(document.createElement("div"), { className: "zoom-pane", tabIndex: 0 });
+    pane.append(img(src, cap, false));
+    const fig = document.createElement("figure");
+    fig.append(pane, Object.assign(document.createElement("figcaption"), { textContent: cap }));
+    body.append(fig);
+    panes.push(pane);
+  }
+  // Two panes move together, so the same spot of both pages stays side by side.
+  let busy = false;
+  panes.forEach((pane) => pane.addEventListener("scroll", () => {
+    if (busy) return;
+    busy = true;
+    for (const other of panes) {
+      if (other === pane) continue;
+      other.scrollLeft = (pane.scrollLeft / Math.max(1, pane.scrollWidth - pane.clientWidth)) * (other.scrollWidth - other.clientWidth);
+      other.scrollTop = (pane.scrollTop / Math.max(1, pane.scrollHeight - pane.clientHeight)) * (other.scrollHeight - other.clientHeight);
+    }
+    requestAnimationFrame(() => { busy = false; });
+  }));
+  if (!$("zoom").open) $("zoom").showModal();
+}
+
 function renderDetail() {
   const d = state.data, i = state.selected, p = d.proposals[i];
   if (!d.rescans[i]) return;
@@ -173,7 +224,7 @@ function renderDetail() {
   $("d-badge").className = `badge ${s}`;
   $("d-badge").textContent = badgeText(s);
   $("d-reason").textContent = p ? `${t("review.details")}: ${p.reason_key ? t(`reason.${p.reason_key}`, p.reason_args) : p.reason}` : "";
-  document.querySelectorAll(".tabs button").forEach((b) => {
+  document.querySelectorAll(".tabs button[data-view]").forEach((b) => {
     b.setAttribute("aria-selected", String(b.dataset.view === state.view));
     b.tabIndex = b.dataset.view === state.view ? 0 : -1;
   });
@@ -186,7 +237,10 @@ function renderDetail() {
     const turns = turnsFor(i, page);
     const fig = (src, cap) => {
       const f = document.createElement("figure");
-      f.append(img(src, cap, false), Object.assign(document.createElement("figcaption"), { textContent: cap }));
+      const pic = img(src, cap, false);
+      pic.classList.add("zoomable");
+      pic.onclick = openZoom;
+      f.append(pic, Object.assign(document.createElement("figcaption"), { textContent: cap }));
       return f;
     };
     if (state.view === "side") {
@@ -221,7 +275,7 @@ function renderDetail() {
   const input = $("page-input");
   input.max = d.original ? d.original.pages : 1;
   if (document.activeElement !== input) input.value = page ?? "";
-  $("confirm").disabled = page === null;
+  $("confirm").disabled = $("zoom-open").disabled = page === null;
   $("confirm").textContent = d.confirmed.includes(i) && d.choice[i] === page ? t("review.confirmed") : t("review.confirm");
   $("unassign").disabled = !(i in d.choice);
 }
@@ -264,6 +318,7 @@ async function choose(page, confirmed) {
   } catch (e) { showError($("export-error"), e); }
 }
 async function findMatches() {
+  state.loadOpen = false;
   state.selected = 0;
   state.candidate = null;
   state.data = await api("/api/match", { ocr: $("ocr").checked });
@@ -289,11 +344,11 @@ function wireDrop(zone, input, handler) {
 // j/k (and the arrow keys inside the list) move through the rescans, 1 to 8 pick a candidate, c confirms.
 function onKey(e) {
   if (e.ctrlKey || e.metaKey || e.altKey || !state.data || $("review").hidden) return;
-  if (e.target.closest("input, select, textarea")) return;
+  if (e.target.closest("input, select, textarea") || $("zoom").open) return;
   const n = state.data.rescans.length, key = e.key;
-  const tab = e.target.closest(".tabs button");
+  const tab = e.target.closest(".tabs button[data-view]");
   if (tab && (key === "ArrowRight" || key === "ArrowLeft")) {
-    const tabs = [...document.querySelectorAll(".tabs button")];
+    const tabs = [...document.querySelectorAll(".tabs button[data-view]")];
     const next = tabs[(tabs.indexOf(tab) + (key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
     e.preventDefault();
     state.view = next.dataset.view;
@@ -313,6 +368,8 @@ function onKey(e) {
   } else if (/^[1-8]$/.test(key)) {
     const c = state.data.proposals[state.selected]?.candidates[+key - 1];
     if (c) { state.candidate = c.page; renderDetail(); }
+  } else if (key === "z") {
+    openZoom();
   } else if (key === "c") {
     const p = shownPage();
     if (p !== null) choose(p, true);
@@ -341,8 +398,12 @@ function init() {
   }, $("error"));
   $("clear").onclick = () => guarded(async () => { state.data = await api("/api/clear", {}); render(); }, $("error"));
   $("go").onclick = () => guarded(findMatches, $("error"));
+  $("load-edit").onclick = () => { state.loadOpen = true; render(); $("drop-original").focus(); };
+  $("zoom-open").onclick = openZoom;
+  $("zoom-close").onclick = () => $("zoom").close();
+  $("zoom").addEventListener("click", (e) => { if (e.target === $("zoom")) $("zoom").close(); });
   $("cancel").onclick = () => guarded(async () => { await api("/api/cancel", {}); }, $("error"));
-  document.querySelectorAll(".tabs button").forEach((b) => (b.onclick = () => { state.view = b.dataset.view; renderDetail(); }));
+  document.querySelectorAll(".tabs button[data-view]").forEach((b) => (b.onclick = () => { state.view = b.dataset.view; renderDetail(); }));
   $("use-page").onclick = () => { const v = parseInt($("page-input").value, 10); if (v >= 1) { state.candidate = v; renderDetail(); } };
   $("page-input").onkeydown = (e) => { if (e.key === "Enter") $("use-page").click(); };
   $("confirm").onclick = () => { const p = shownPage(); if (p !== null) choose(p, true); };

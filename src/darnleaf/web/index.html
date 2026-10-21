@@ -23,7 +23,10 @@
 <p id="demo-banner" class="demo" hidden data-i18n="demo.banner"></p>
 <main>
   <section id="load" class="panel" aria-labelledby="h-load">
-    <h2 id="h-load"><span class="n">1</span><span data-i18n="load.title"></span></h2>
+    <div class="load-head">
+      <h2 id="h-load"><span class="n">1</span><span data-i18n="load.title"></span></h2>
+      <p id="load-summary" class="summary" hidden><span id="summary-text"></span><button id="load-edit" class="ghost" type="button" data-i18n="load.change"></button></p>
+    </div>
     <div class="drops">
       <div class="drop" id="drop-original" tabindex="0" role="button">
         <strong data-i18n="load.original"></strong>
@@ -70,6 +73,7 @@
           <button type="button" role="tab" aria-controls="stage" data-view="side" data-i18n="view.side"></button>
           <button type="button" role="tab" aria-controls="stage" data-view="overlay" data-i18n="view.overlay"></button>
           <button type="button" role="tab" aria-controls="stage" data-view="features" data-i18n="view.features"></button>
+          <button id="zoom-open" class="ghost" type="button" aria-haspopup="dialog" data-i18n="view.zoom"></button>
         </div>
         <div id="stage" class="stage" role="tabpanel"></div>
         <div class="cands">
@@ -104,6 +108,10 @@
     <p id="export-error" class="error" role="alert" hidden></p>
   </section>
 </main>
+<dialog id="zoom" aria-labelledby="zoom-title">
+  <div class="zoom-bar"><strong id="zoom-title"></strong><button id="zoom-close" type="button" data-i18n="view.close"></button></div>
+  <div id="zoom-body" class="zoom-body"></div>
+</dialog>
 <footer><span data-i18n="app.footer"></span> <a href="https://github.com/Arthur031221/Darnleaf">GitHub</a></footer>
 <script src="app.js"></script>
 </body>

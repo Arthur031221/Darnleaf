@@ -1,3 +1,11 @@
+## Darnleaf 0.5.0
+
+- A closer look at damage. The new **Zoom** button (or a click on a picture, or `z`) opens the pair at full size in one window. In side by side view the original and the rescan scroll together, so the same spot of both stays level. The overlay and matched feature views open the same way. Escape closes it.
+- The review gets the screen. Once matches exist, the file panel folds into one line (`name, 40 pages, 7 rescans` and a **Change files** button), and the page scrolls to the review when matching finishes. On a phone the pictures no longer start below a full-height file panel.
+- New interface strings are translated in all nine languages, and the demo GIF shows the zoom.
+
+Install: `pipx install git+https://github.com/Arthur031221/Darnleaf@v0.5.0`, or install the attached wheel.
+
 ## Darnleaf 0.4.0
 
 - Rescans photographed at a slant now match and align. The matcher tries a perspective fit next to the flat one and uses it only when it explains clearly more of the matches, so flat scans give the same results as before. On ten held-out seeds with every rescan tilted (`scripts/benchmark.py --tilt 0.04`) the Clear count rises from 31 to 46 of 90 and the right answer comes first for 77 of 90 instead of 46, with no wrong Clear in either run. The held-out result on flat scans is unchanged.

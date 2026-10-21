@@ -14,8 +14,8 @@ With files on the command line the server reads them before it starts listening,
 
 1. Drop the damaged PDF on the left box and the fresh rescans (photos, images or PDFs, any order) on the right box. PNG, JPEG, TIFF, BMP and WebP work out of the box. iPhone HEIC photos need `pip install "darnleaf[heic]"`, or export them as JPEG first.
 2. Press **Find matches**. Each rescan gets a suggested page and one of three labels. **Try the bundled sample** loads a synthetic booklet and does this step for you.
-3. Click a rescan to see why. Three views: side by side, an overlay (orange is ink only the old page has, blue is ink only the rescan has) and the matched features. Other plausible pages are listed under the view, and you can type any page number yourself.
-4. Confirm every rescan labelled **Check**. The export button stays locked until you do. Confirming jumps to the next rescan that still needs a check. Keys: `j` and `k` move between rescans (the arrow keys too, while the list has focus), `1` to `8` pick a candidate page, `c` confirms.
+3. Click a rescan to see why. Three views: side by side, an overlay (orange is ink only the old page has, blue is ink only the rescan has) and the matched features. Other plausible pages are listed under the view, and you can type any page number yourself. **Zoom** (or a click on the picture) opens both pages at full size in one window, and they scroll together so you can compare a stain or a crease at the same spot. Once there is something to review, the file panel folds into one line, and **Change files** opens it again.
+4. Confirm every rescan labelled **Check**. The export button stays locked until you do. Confirming jumps to the next rescan that still needs a check. Keys: `j` and `k` move between rescans (the arrow keys too, while the list has focus), `1` to `8` pick a candidate page, `c` confirms, `z` opens a closer look.
 5. Press **Write repaired PDF**. Download the PDF and the receipt.
 
 | Label | What it means | Needs your confirmation |
